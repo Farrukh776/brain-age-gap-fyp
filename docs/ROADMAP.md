@@ -7,14 +7,14 @@ Tick items as they are completed. Steps are done in order.
 - [ ] All three members can log in to the IDA (or access arranged via supervisor)
 
 ## Step 2: Repository
-- [ ] Private GitHub repo created, starter files pushed
+- [x] GitHub repo created (public, see decision 3), starter files pushed
 - [ ] Teammates and supervisor added as collaborators
 - [ ] Every member has cloned and pushed one test branch
 
 ## Step 3: Environment
-- [ ] Conda environment `fyp` works on all machines
+- [ ] Conda environment `fyp` works on all machines (Farrukh: done 2026-11-13; Anfas, Asher: pending)
 - [ ] Storage location for scans decided
-- [ ] GPU access confirmed (needed for the 3D CNN)
+- [ ] GPU access confirmed (needed for the 3D CNN; Farrukh's laptop has no NVIDIA GPU)
 
 ## Step 4: Cohort and splits
 - [ ] Clinical tables downloaded (diagnosis, demographics, MMSE, merged summary)
