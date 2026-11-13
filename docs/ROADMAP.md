@@ -13,7 +13,7 @@ Tick items as they are completed. Steps are done in order.
 
 ## Step 3: Environment
 - [ ] Conda environment `fyp` works on all machines (Farrukh: done 2026-11-13; Anfas, Asher: pending)
-- [ ] Storage location for scans decided
+- [x] Storage location for scans decided (see decision 6)
 - [ ] GPU access confirmed (needed for the 3D CNN; Farrukh's laptop has no NVIDIA GPU)
 
 ## Step 4: Cohort and splits

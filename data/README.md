@@ -12,5 +12,9 @@ data/
   tables/     Cohort tables, split files, feature tables, BAG table
 ```
 
+If your main drive is short on space, keep the big folders (`raw`, `bids`, `processed`) on
+another drive and link them here, so the config paths (`data/...`) stay the same for everyone.
+On Windows, from the repo folder: `mklink /J data\raw D:\fyp-data\raw` (repeat for each folder).
+
 Each member downloads data with their own ADNI account. Do not share ADNI files through
 GitHub, public drives or messaging apps.

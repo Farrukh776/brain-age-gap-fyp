@@ -13,10 +13,11 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 - Pushed `CLAUDE.md`. Repo kept public (decision 3). Streams shared by all members (decision 4).
 - Installed Miniconda on D: and created the `fyp` env (Python 3.11, CPU-only PyTorch) on
   Farrukh's laptop (decision 5). All packages in `requirements.txt` import; `pip check` is clean.
+- Scan storage set up on D: with folder links from `data/` (decision 6).
 
 **Next**
 - Step 2: add teammates and supervisor as collaborators; each member pushes one test branch.
-- Step 3: teammates set up the `fyp` env; decide the scan storage folder; confirm GPU access.
+- Step 3: teammates set up the `fyp` env; confirm GPU access.
 - Then step 4 (download clinical tables, fill `cohort_definition.md`).
 
 **Open questions**
