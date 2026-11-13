@@ -1,0 +1,15 @@
+# MRI preprocessing. Record the final choices in docs/preprocessing_log.md
+paths:
+  raw_scans: data/raw/scans
+  out_dir: data/processed
+tool: TODO                 # name and version
+steps:
+  bias_correction: true
+  registration: affine     # to a standard template
+  template: TODO
+  crop: true
+  skull_strip: false       # TODO decide
+  intensity_norm: TODO     # e.g. z-score or min-max
+output:
+  voxel_size_mm: 1.0
+  shape: TODO

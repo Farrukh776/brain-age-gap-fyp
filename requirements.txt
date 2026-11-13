@@ -1,0 +1,27 @@
+# Core
+numpy
+pandas
+scipy
+scikit-learn
+pyyaml
+tqdm
+
+# MRI
+nibabel
+nilearn
+SimpleITK
+
+# Deep learning (for GPU, install torch from https://pytorch.org first)
+torch
+
+# Explainability (FYP-II, listed for completeness)
+shap
+captum
+
+# Plots and notebooks
+matplotlib
+plotly
+jupyter
+
+# Tests
+pytest

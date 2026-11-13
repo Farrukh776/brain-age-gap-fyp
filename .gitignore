@@ -1,0 +1,44 @@
+# ---- ADNI data: NEVER commit (Data Use Agreement forbids redistribution) ----
+data/*
+!data/README.md
+outputs/*
+!outputs/README.md
+*.nii
+*.nii.gz
+*.dcm
+*.mgz
+*.csv
+*.tsv
+*.xlsx
+*.parquet
+*.zip
+*.tar.gz
+
+# ---- Model files ----
+*.pt
+*.pth
+*.ckpt
+*.pkl
+*.joblib
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# ---- Editors / OS ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ---- Secrets ----
+.env
+
+# ---- Claude app scratch folder ----
+Claude outputs/

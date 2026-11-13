@@ -1,0 +1,17 @@
+# E1: MRI-derived features only
+experiment: E1
+seed: 42
+paths:
+  cohort_table: data/tables/mci_cohort.csv
+  splits: data/tables/mci_splits.csv
+  features: data/tables/mci_features.csv
+  out_dir: outputs/progression/E1
+inputs:
+  mri_features: true
+  age: false
+  bag: false
+  clinical: false
+models: [logistic_regression, random_forest]
+cv_folds: 5
+metrics: [roc_auc, pr_auc, sensitivity, specificity, precision, f1]
+bootstrap_iterations: 1000

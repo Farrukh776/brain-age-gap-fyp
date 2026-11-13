@@ -1,0 +1,17 @@
+# Cohort construction. Keep in sync with docs/cohort_definition.md
+seed: 42
+paths:
+  raw_tables: data/raw/tables
+  out_dir: data/tables
+progression:
+  baseline_diagnosis: MCI
+  window_months: 36        # TODO confirm with supervisor
+  exclude_reverters: true  # TODO confirm
+brain_age:
+  diagnosis: CN
+  baseline_only: true      # TODO confirm
+split:
+  train: 0.70
+  val: 0.15
+  test: 0.15
+  stratify_by: label

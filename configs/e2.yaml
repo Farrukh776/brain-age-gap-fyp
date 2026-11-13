@@ -1,0 +1,18 @@
+# E2: MRI-derived features + chronological age
+experiment: E2
+seed: 42
+paths:
+  cohort_table: data/tables/mci_cohort.csv
+  splits: data/tables/mci_splits.csv
+  features: data/tables/mci_features.csv
+  out_dir: outputs/progression/E2
+inputs:
+  mri_features: true
+  age: true
+  bag: false
+  clinical: false
+models: [logistic_regression, random_forest]
+cv_folds: 5
+metrics: [roc_auc, pr_auc, sensitivity, specificity, precision, f1]
+bootstrap_iterations: 1000
+# Must stay identical to e1.yaml except: experiment, out_dir, inputs.age
