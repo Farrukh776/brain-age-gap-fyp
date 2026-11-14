@@ -7,7 +7,7 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ## 2026-11-14 (Session 3)
 
-**Current step:** 4 (Cohort and splits) finished except supervisor review; step 5 is next.
+**Current step:** 5 (MRI preprocessing), pilot stage. Step 4 is finished except supervisor review.
 Steps 2 and 3 still have open items that need teammates.
 
 **Done**
@@ -17,19 +17,29 @@ Steps 2 and 3 still have open items that need teammates.
   matching. `docs/cohort_definition.md` is filled in with counts and an exclusion log.
 - Wrote `src/cohort/inspect_tables.py`, `build_cohorts.py` and `make_splits.py` (counts only).
 - Built both cohort tables and the 70/15/15 subject-level splits; no overlaps.
+- Step 5 started: `src/preprocessing/select_pilot.py` picked 10 pilot scans (5 CN, 5 MCI,
+  training subjects, mixed phases and scan types). An ADNI collection `pilot10` was created
+  via Advanced Image Search (paste image IDs) and its 1-Click Download started.
 
 **Next**
 - Show `docs/cohort_definition.md` to the supervisor (rules were decided without his review).
-- Step 5: choose the preprocessing tool, then download the baseline T1 scans for a 10-scan
-  pilot. Use original images from the "Clinical T1w Imaging Cohort" (ARC Builder > Downloads >
-  Images); do not download the full 258 GB set.
+- Step 5, first thing: check `data/raw/scans` holds both pilot zips (about 98 MB and 17 MB)
+  and the IDA metadata file. At the end of session 3 only the first zip was there, still
+  downloading. Re-download from Data Collections > pilot10 if anything is missing.
+- Then unpack the pilot, write the preprocessing script (convert, reorient, N4 bias correction,
+  affine registration to MNI152, crop, intensity normalisation, QC pictures) using SimpleITK
+  and nilearn, run it on the 10 scans and check the pictures. Record tool and settings in
+  `decisions.md`. Skull stripping: skip unless the pilot shows a problem.
+- Full download only after the pilot: essential scans first (454 MCI + 947 CN baseline, about
+  16 GB), extra CN visits later. Set the browser download folder to `D:\fyp-data\raw\scans`.
 - Steps 2 and 3: add teammates as collaborators; they set up the env and download the same
   table versions with their own ADNI accounts.
 
 **Open questions**
-- Where will the 3D CNN be trained? No NVIDIA GPU on Farrukh's laptop.
-- How much free space is on D: for scans (about 950 CN + 454 MCI baseline scans, more with
-  extra CN visits)?
+- 3D CNN training: a university lab GPU is available (used in person). Still to confirm:
+  GPU model and memory, storage, whether packages can be installed, booking or time limits.
+  Colab is avoided because uploading ADNI scans may breach the Data Use Agreement.
+- D: has 318 GB free, enough for all scans. Laptop: 8 cores, about 6 GB memory.
 - Use ADNI's FreeSurfer 7.x table for regional volumes (baseline model, E1)? Decide in step 6.
 - The progression test set is small (69 subjects, 24 progressors); expect wide intervals.
 - Teammates must rebuild the same splits: the split files are local only, so check that the
