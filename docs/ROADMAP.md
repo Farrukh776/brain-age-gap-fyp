@@ -23,8 +23,8 @@ Tick items as they are completed. Steps are done in order.
       (filled in 2026-11-14, decisions 7 to 12; supervisor review pending)
 - [x] Brain-age cohort (CN) table built
 - [x] Progression cohort (MCI) table built with progressor / stable labels
-- [ ] Subject-level 70/15/15 splits saved for both cohorts
-- [ ] Verified no subject overlaps between cohorts or splits
+- [x] Subject-level 70/15/15 splits saved for both cohorts
+- [x] Verified no subject overlaps between cohorts or splits
 - [x] Class balance and exclusion counts reported (in `docs/cohort_definition.md`)
 
 ## Step 5: MRI preprocessing

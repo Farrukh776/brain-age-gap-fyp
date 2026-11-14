@@ -5,6 +5,38 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ---
 
+## 2026-11-14 (Session 3)
+
+**Current step:** 4 (Cohort and splits) finished except supervisor review; step 5 is next.
+Steps 2 and 3 still have open items that need teammates.
+
+**Done**
+- Downloaded the ADNI tables into `data/raw/tables` (diagnosis, demographics, MMSE, registry,
+  data dictionary, 1.5 T and 3 T scan information, T1 image manifest, FreeSurfer 7.x).
+- Decided the cohort rules (decisions 7 to 12): 3 T only, 36-month window, exclusions, scan
+  matching. `docs/cohort_definition.md` is filled in with counts and an exclusion log.
+- Wrote `src/cohort/inspect_tables.py`, `build_cohorts.py` and `make_splits.py` (counts only).
+- Built both cohort tables and the 70/15/15 subject-level splits; no overlaps.
+
+**Next**
+- Show `docs/cohort_definition.md` to the supervisor (rules were decided without his review).
+- Step 5: choose the preprocessing tool, then download the baseline T1 scans for a 10-scan
+  pilot. Use original images from the "Clinical T1w Imaging Cohort" (ARC Builder > Downloads >
+  Images); do not download the full 258 GB set.
+- Steps 2 and 3: add teammates as collaborators; they set up the env and download the same
+  table versions with their own ADNI accounts.
+
+**Open questions**
+- Where will the 3D CNN be trained? No NVIDIA GPU on Farrukh's laptop.
+- How much free space is on D: for scans (about 950 CN + 454 MCI baseline scans, more with
+  extra CN visits)?
+- Use ADNI's FreeSurfer 7.x table for regional volumes (baseline model, E1)? Decide in step 6.
+- The progression test set is small (69 subjects, 24 progressors); expect wide intervals.
+- Teammates must rebuild the same splits: the split files are local only, so check that the
+  scripts give identical counts on their machines.
+
+---
+
 ## 2026-11-13 (Session 2)
 
 **Current step:** 3 (Environment); step 2 still has open items that need teammates.

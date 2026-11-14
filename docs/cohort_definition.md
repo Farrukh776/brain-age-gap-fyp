@@ -62,8 +62,11 @@ Exclusion:
   is only used if the first fails QC.
 
 ## Splits
-- Subject-level, stratified by label. Ratio 70 / 15 / 15. Seed: 42
-- Split files are created once and never regenerated
+- Subject-level. Ratio 70 / 15 / 15. Seed: 42. Created by `src/cohort/make_splits.py`.
+- MCI cohort: stratified by label. CN cohort: stratified by baseline age band (five equal-sized
+  bands), so every split covers the full age range.
+- Split files are created once and never regenerated (the script refuses to overwrite them).
+  Subjects that later fail scan QC are removed from their split; nobody is moved between splits.
 
 ## Implementation notes
 - Built by `src/cohort/build_cohorts.py` from `configs/cohort.yaml`.
@@ -77,14 +80,16 @@ Exclusion:
   ADNI3 and ADNI4 only have accelerated scans, so those are used there.
 - Age is scan date minus date of birth (ADNI gives month and year; the 15th is assumed).
 
-## Counts (built 2026-11-14, before scan QC; splits not created yet)
+## Counts (built and split 2026-11-14, before scan QC)
 | Cohort | Start | After exclusions | Train | Val | Test |
 |---|---|---|---|---|---|
-| CN | 1593 | 947 subjects (2497 scans) | | | |
-| MCI stable | 1550 (all MCI) | 299 | | | |
-| MCI progressor | | 155 | | | |
+| CN (subjects) | 1593 | 947 | 662 | 142 | 143 |
+| MCI stable | 1550 (all MCI) | 299 | 209 | 45 | 45 |
+| MCI progressor | | 155 | 108 | 23 | 24 |
 
-Progression cohort: 454 subjects, 34% progressors.
+Progression cohort: 454 subjects, 34% progressors in every split.
+Brain-age cohort: 2497 scans in total; the training subjects have 1776 scans across visits.
+Validation and test use the baseline scan only (142 and 143 scans).
 
 ## Exclusion log
 | Cohort | Rule | Subjects removed |
