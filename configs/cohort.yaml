@@ -1,15 +1,22 @@
-# Cohort construction. Keep in sync with docs/cohort_definition.md
+# Cohort construction. Keep in sync with docs/cohort_definition.md (decisions 7 to 12)
 seed: 42
 paths:
   raw_tables: data/raw/tables
   out_dir: data/tables
+imaging:
+  field_strength: 3T               # 3 T only (decision 7)
+  max_days_from_baseline: 90       # scan must be within this many days of baseline diagnosis
 progression:
   baseline_diagnosis: MCI
-  window_months: 36        # TODO confirm with supervisor
-  exclude_reverters: true  # TODO confirm
+  phases: [ADNI1, ADNIGO, ADNI2, ADNI3]
+  window_months: 36
+  exclude_reverters: true
 brain_age:
   diagnosis: CN
-  baseline_only: true      # TODO confirm
+  phases: [ADNI1, ADNIGO, ADNI2, ADNI3, ADNI4]
+  exclude_later_converters: true   # CN who later become MCI/AD are not used
+  train_multiple_visits: true      # training set may use several CN visits per subject
+  eval_baseline_only: true         # validation and test use one baseline scan per subject
 split:
   train: 0.70
   val: 0.15

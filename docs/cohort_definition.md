@@ -1,54 +1,99 @@
 # Cohort Definition
 
-**Status:** DRAFT. Must be finalised and agreed with the supervisor before any model is trained.
-Items marked TODO are decisions the team still has to make.
+**Status:** DECIDED by the team on 2026-11-14 (decisions 7 to 12 in `decisions.md`), based on the
+counts from `src/cohort/inspect_tables.py`. Not yet reviewed by the supervisor; show him this
+file before any model is trained. Any later change needs a new entry in `decisions.md`.
 
 ## Data source
-- Dataset: ADNI. Phases included: TODO (e.g. ADNI1 / GO / 2 / 3)
-- Tables used: TODO (list exact file names and download dates)
-- Imaging: T1-weighted structural MRI, baseline visit. Field strength: TODO
+- Dataset: ADNI. Phases: ADNI1, GO, 2, 3 and 4 for the brain-age cohort; ADNI1, GO, 2 and 3 for
+  the progression cohort (ADNI4 MCI subjects enrolled too recently for a 36-month outcome).
+- Tables used (ADNI Study Files, downloaded 2026-11-14, file version 13Nov2026), kept in
+  `data/raw/tables`:
+  - `DXSUM_13Nov2026.csv` (diagnosis), `PTDEMOG_13Nov2026.csv` (demographics),
+    `MMSE_13Nov2026.csv`, `REGISTRY_13Nov2026.csv` (visits), `DATADIC_13Nov2026.csv` (dictionary)
+  - `MRIMETA_13Nov2026.csv`, `MRI3META_13Nov2026.csv` (scan information, field strength)
+  - `Clinical_T1w_Imaging_Cohort_Manifest_13Nov2026.csv` (list of T1 images)
+  - `UCSFFSX7_13Nov2026.csv` (FreeSurfer 7.x regional measures; use decided in step 6)
+  - ADNIMERGE is not used (now distributed as an R package only).
+- Imaging: T1-weighted structural MRI (MPRAGE / IR-SPGR family), original images as listed in
+  the manifest, **3 T only**.
+  Reason: 43% of MCI progressors but only 10% of CN subjects were scanned at 1.5 T. Mixing field
+  strengths would let BAG reflect the scanner. 3 T only removes this without any correction step.
+  Cost: fewer subjects (about 148 progressors instead of 261).
 
 ## A. Brain-age cohort (cognitively unimpaired)
 Inclusion:
-- Diagnosis CN at the scan visit
-- Usable T1 scan that passes QC
+- Diagnosis CN at baseline (the subject's first visit with a recorded diagnosis)
+- 3 T T1 scan matched to that visit (see Visit alignment) that passes QC
 - Known chronological age at scan
 
 Exclusion:
-- TODO (e.g. later conversion to MCI/AD: include or exclude?)
+- CN subjects who are diagnosed MCI or AD at any later visit.
+  Reason: the model should learn normal ageing; subjects with early undetected disease would
+  make an "older-looking" brain seem normal and shrink BAG in the MCI cohort.
+  The number excluded is reported. They are not moved into the MCI cohort.
 
-Scans per subject: TODO (baseline only, or multiple visits with subject-level split)
+Scans per subject: multiple visits in the training set (only visits where the subject is still
+CN); one baseline scan per subject in validation and test. All scans of a subject stay in the
+same split.
 
 ## B. Progression cohort (MCI)
 Inclusion:
 - Diagnosis MCI at baseline
-- Usable baseline T1 scan that passes QC
+- 3 T baseline T1 scan matched to that visit that passes QC
+- Enrolled in ADNI1, GO, 2 or 3
+
+Scans per subject: baseline only (required by the proposal; longitudinal BAG is out of scope).
 
 Outcome definition:
-- Follow-up window: TODO (proposed: 36 months)
-- **Progressor (label 1):** diagnosis changes to AD within the window
-- **Stable (label 0):** remains MCI, with follow-up at least as long as the window
+- Follow-up window: 36 months from the baseline diagnosis
+- **Progressor (label 1):** diagnosed with dementia at any visit within the window
+- **Stable (label 0):** never diagnosed with dementia within the window, and has a diagnosis
+  visit at 36 months or later
 
 Exclusion:
-- Reverts to CN during follow-up: TODO (proposed: exclude)
+- Diagnosed CN at any follow-up visit (reverters), unless already a progressor
 - Follow-up shorter than the window without conversion
 - Missing age or failed scan QC
 
 ## Visit alignment
-- How a scan is matched to a diagnosis visit: TODO (e.g. same visit code, max days apart)
+- A scan is matched to the baseline diagnosis if it was acquired within 90 days of the baseline
+  diagnosis date. If several qualify, the nearest is used; a repeat scan from the same session
+  is only used if the first fails QC.
 
 ## Splits
 - Subject-level, stratified by label. Ratio 70 / 15 / 15. Seed: 42
 - Split files are created once and never regenerated
 
-## Counts (fill after building)
+## Implementation notes
+- Built by `src/cohort/build_cohorts.py` from `configs/cohort.yaml`.
+- Months since baseline use the scheduled visit code (`VISCODE2`: sc/bl = 0, m36 = 36), because
+  visits rarely fall on the exact day; dates are the fallback.
+- Diagnosis rows without an exam date take the date from the registry table.
+- Field strength per scan session comes from the scan information tables (matched by date),
+  then from the FreeSurfer table. 315 of 11,603 sessions stay unknown (subjects scanned at both
+  strengths on the same day) and are not used; this affects at most 3 candidate subjects.
+- One image per session: the first (non-repeat), non-accelerated acquisition when available.
+  ADNI3 and ADNI4 only have accelerated scans, so those are used there.
+- Age is scan date minus date of birth (ADNI gives month and year; the 15th is assumed).
+
+## Counts (built 2026-11-14, before scan QC; splits not created yet)
 | Cohort | Start | After exclusions | Train | Val | Test |
 |---|---|---|---|---|---|
-| CN | | | | | |
-| MCI stable | | | | | |
-| MCI progressor | | | | | |
+| CN | 1593 | 947 subjects (2497 scans) | | | |
+| MCI stable | 1550 (all MCI) | 299 | | | |
+| MCI progressor | | 155 | | | |
+
+Progression cohort: 454 subjects, 34% progressors.
 
 ## Exclusion log
-| Rule | Subjects removed |
-|---|---|
-| | |
+| Cohort | Rule | Subjects removed |
+|---|---|---|
+| CN | Later diagnosed MCI or AD | 215 |
+| CN | No 3 T scan within 90 days of baseline | 431 |
+| CN | Missing age or sex | 0 |
+| MCI | Enrolled in ADNI4 | 234 |
+| MCI | Reverted to CN | 114 |
+| MCI | Follow-up under 36 months without conversion | 486 |
+| MCI | No 3 T scan within 90 days of baseline | 262 |
+| MCI | Missing age or sex | 0 |
