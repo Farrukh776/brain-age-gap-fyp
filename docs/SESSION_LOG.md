@@ -17,21 +17,20 @@ Steps 2 and 3 still have open items that need teammates.
   matching. `docs/cohort_definition.md` is filled in with counts and an exclusion log.
 - Wrote `src/cohort/inspect_tables.py`, `build_cohorts.py` and `make_splits.py` (counts only).
 - Built both cohort tables and the 70/15/15 subject-level splits; no overlaps.
-- Step 5 started: `src/preprocessing/select_pilot.py` picked 10 pilot scans (5 CN, 5 MCI,
-  training subjects, mixed phases and scan types). An ADNI collection `pilot10` was created
-  via Advanced Image Search (paste image IDs) and its 1-Click Download started.
+- Step 5 pilot done: `src/preprocessing/select_pilot.py` picked 10 scans (5 CN, 5 MCI, training
+  subjects, mixed phases and scan types); they were downloaded through an ADNI collection
+  (Advanced Image Search, paste image IDs, 1-Click Download) and unpacked into `data/raw/scans`.
+- Wrote `src/preprocessing/preprocess.py` (decision 13). All 10 pilot scans aligned correctly,
+  about 24 s per scan, 12.5 MB per output. Settings and the registration problems found on the
+  way are in `docs/preprocessing_log.md`.
 
 **Next**
 - Show `docs/cohort_definition.md` to the supervisor (rules were decided without his review).
-- Step 5, first thing: check `data/raw/scans` holds both pilot zips (about 98 MB and 17 MB)
-  and the IDA metadata file. At the end of session 3 only the first zip was there, still
-  downloading. Re-download from Data Collections > pilot10 if anything is missing.
-- Then unpack the pilot, write the preprocessing script (convert, reorient, N4 bias correction,
-  affine registration to MNI152, crop, intensity normalisation, QC pictures) using SimpleITK
-  and nilearn, run it on the 10 scans and check the pictures. Record tool and settings in
-  `decisions.md`. Skull stripping: skip unless the pilot shows a problem.
-- Full download only after the pilot: essential scans first (454 MCI + 947 CN baseline, about
-  16 GB), extra CN visits later. Set the browser download folder to `D:\fyp-data\raw\scans`.
+- Step 5: download the essential scans (454 MCI + 947 CN baseline, about 16 GB) in batches,
+  then run the batch overnight. The script skips finished scans, so it can be restarted.
+  Add parallel processing to `preprocess.py` before the full run.
+- Extra CN visits (about 1,550 scans) are downloaded later, for CNN training only.
+  Set the browser download folder to `D:\fyp-data\raw\scans` before large downloads.
 - Steps 2 and 3: add teammates as collaborators; they set up the env and download the same
   table versions with their own ADNI accounts.
 

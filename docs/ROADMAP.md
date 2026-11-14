@@ -14,7 +14,7 @@ Tick items as they are completed. Steps are done in order.
 ## Step 3: Environment
 - [ ] Conda environment `fyp` works on all machines (Farrukh: done 2026-11-13; Anfas, Asher: pending)
 - [x] Storage location for scans decided (see decision 6)
-- [ ] GPU access confirmed (needed for the 3D CNN; Farrukh's laptop has no NVIDIA GPU)
+- [ ] GPU access confirmed (university lab GPU available; model, storage and booking rules to confirm)
 
 ## Step 4: Cohort and splits
 - [x] Clinical tables downloaded (diagnosis, demographics, MMSE, registry, data dictionary;
@@ -29,8 +29,8 @@ Tick items as they are completed. Steps are done in order.
 
 ## Step 5: MRI preprocessing
 - [ ] Baseline T1 scans downloaded for both cohorts
-- [ ] Preprocessing tool chosen and recorded in `decisions.md`
-- [ ] Pilot on 10 scans, visually checked
+- [x] Preprocessing tool chosen and recorded in `decisions.md` (decision 13)
+- [x] Pilot on 10 scans, visually checked
 - [ ] Full batch run
 - [ ] Failures and parameters logged in `docs/preprocessing_log.md`
 

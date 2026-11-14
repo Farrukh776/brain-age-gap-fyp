@@ -2,14 +2,23 @@
 paths:
   raw_scans: data/raw/scans
   out_dir: data/processed
-tool: TODO                 # name and version
+  qc_dir: outputs/preprocessing
+  template_dir: data/raw/templates   # downloaded once by nilearn (about 60 MB)
+tool: SimpleITK + nilearn        # versions are written to the QC table at run time
 steps:
-  bias_correction: true
-  registration: affine     # to a standard template
-  template: TODO
-  crop: true
-  skull_strip: false       # TODO decide
-  intensity_norm: TODO     # e.g. z-score or min-max
+  orient: LPS                    # one orientation for every scan
+  bias_correction: true          # N4
+  n4_shrink_factor: 4            # estimate the bias field on a smaller copy (faster)
+  registration: affine           # rigid then affine, to the template; no warping.
+                                 # Scored by correlation inside the template brain only.
+  template: MNI ICBM152 2009a nonlinear symmetric, 1 mm, with skull (nilearn fetch_icbm152_2009)
+  skull_strip: false             # see docs/preprocessing_log.md
+  intensity_norm: zscore         # inside the template brain mask, after percentile clipping
+  clip_percentiles: [0.5, 99.5]
 output:
   voxel_size_mm: 1.0
-  shape: TODO
+  shape: [160, 192, 160]         # fixed box centred on the template brain
+qc:
+  # Below this the scan is flagged for a visual check. In the pilot, well-aligned scans scored
+  # 0.40 to 0.57 and misaligned ones below 0.20.
+  min_template_correlation: 0.30
