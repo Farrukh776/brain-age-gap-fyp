@@ -5,10 +5,11 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ---
 
-## 2026-11-14 (Session 3)
+## 2026-11-14 to 2026-11-15 (Session 3)
 
-**Current step:** 5 (MRI preprocessing), pilot stage. Step 4 is finished except supervisor review.
-Steps 2 and 3 still have open items that need teammates.
+**Current step:** 5 (MRI preprocessing). Pilot done; the download of the essential scans is in
+progress. Step 4 is finished except supervisor review. Steps 2 and 3 still have open items
+that need teammates.
 
 **Done**
 - Downloaded the ADNI tables into `data/raw/tables` (diagnosis, demographics, MMSE, registry,
@@ -24,13 +25,43 @@ Steps 2 and 3 still have open items that need teammates.
   about 24 s per scan, 12.5 MB per output. Settings and the registration problems found on the
   way are in `docs/preprocessing_log.md`.
 
-**Next**
+- `src/preprocessing/make_download_lists.py` wrote 7 lists of image IDs (200 each, 1,391
+  essential scans: 454 MCI + 947 CN baseline, minus the 10 pilot scans) to
+  `data/tables/download_lists/`. Farrukh pasted them into Advanced Image Search and added all
+  of them to one ADNI collection named `essential`.
+- Download state when the session ended (2026-11-15, afternoon): 1-Click Download of the whole
+  collection crashed the site twice. One large file was then downloading into
+  `data/raw/scans` (about 3.7 GB so far, still a `.crdownload`). How that download was started
+  (Advanced Download, or a smaller selection) is not recorded; ask Farrukh.
+
+**Next (start of session 4, once the downloads have finished)**
+1. Ask Farrukh how the download went and which method worked. Then list `data/raw/scans`:
+   finished files end in `.zip`, unfinished ones in `.crdownload`. Test every zip
+   (`unzip -tq`).
+2. Unpack each zip into its own folder under `data/raw/scans` (the pilot is in `pilot10/`).
+   Scan folders are named `I<image_id>`; `preprocess.py` finds them anywhere under
+   `data/raw/scans`.
+3. Re-run `python -m src.preprocessing.make_download_lists`. It reports how many essential
+   scans are still missing and rewrites the lists with only those. Expected total: 1,401.
+   If scans are missing, download them in smaller collections (one per list; reduce
+   `BATCH_SIZE` in the script if 200 is still too many for the site).
+4. Add parallel processing to `preprocess.py` (several scans at once; memory is about 6 GB, so
+   start with 3 or 4 workers), then run the full batch on a scan list made from the cohort
+   tables (MCI scans and CN baseline scans). About 24 s per scan on one core; the script
+   skips scans already done, so it can be stopped and restarted.
+5. Review flagged scans (score below 0.30) and a random sample of the rest on their QC
+   pictures in `outputs/preprocessing/qc`; log the run and any failures in
+   `docs/preprocessing_log.md`; remove failed subjects from the cohort (never move anyone
+   between splits). Tick the remaining step 5 items in `ROADMAP.md`.
+6. Then step 6 (brain-age model). Decide first whether to use the FreeSurfer 7.x table for
+   the baseline model.
+
+**Also pending**
 - Show `docs/cohort_definition.md` to the supervisor (rules were decided without his review).
-- Step 5: download the essential scans (454 MCI + 947 CN baseline, about 16 GB) in batches,
-  then run the batch overnight. The script skips finished scans, so it can be restarted.
-  Add parallel processing to `preprocess.py` before the full run.
 - Extra CN visits (about 1,550 scans) are downloaded later, for CNN training only.
-  Set the browser download folder to `D:\fyp-data\raw\scans` before large downloads.
+- Laptop settings changed for the overnight download: sleep when plugged in was to be set to
+  Never, and Chrome's download folder to `D:\fyp-data\raw\scans`. Set sleep back afterwards.
+- Do not screenshot ADNI result pages into the chat (they list subject IDs); describe them.
 - Steps 2 and 3: add teammates as collaborators; they set up the env and download the same
   table versions with their own ADNI accounts.
 
