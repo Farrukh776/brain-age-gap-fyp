@@ -15,6 +15,7 @@ import yaml
 CONFIG = Path("configs/cohort.yaml")
 CN, MCI, DEMENTIA = 1, 2, 3
 DAYS_PER_MONTH = 30.44
+NOT_T1 = r"localizer|scout|survey|calibration|flair|t2"  # decision 15
 
 
 def find_table(folder: Path, name: str) -> Path:
@@ -62,6 +63,8 @@ def load_sessions(folder: Path) -> pd.DataFrame:
     """One row per scan session (subject + date): the chosen T1 image and its field strength."""
     man = read(folder, "Clinical_T1w_Imaging_Cohort_Manifest")
     man["image_date"] = pd.to_datetime(man["image_date"], errors="coerce")
+    # The T1 manifest holds a few non-T1 images (a localizer, a FLAIR); never choose them
+    man = man[~man["image_description"].str.contains(NOT_T1, case=False, na=False)]
     desc = man["image_description"].str.lower()
     man["repeat"] = desc.str.contains("repeat")
     man["accelerated"] = desc.str.contains("accel|grappa|sense|cs |hs ")

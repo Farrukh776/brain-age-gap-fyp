@@ -9,9 +9,15 @@ by its ADNI image folder (I<image_id>). Outputs, all named by image ID (never su
     outputs/preprocessing/qc/<image_id>.png   three slices with the template brain outline
     outputs/preprocessing/qc_metrics.csv      one row per scan (status, time, QC score)
 Scans already processed are skipped, so an interrupted run can simply be started again.
+Add --workers N to process N scans at the same time (each worker uses about 0.5 GB memory).
+Add --retry to redo the listed scans with multi-start registration (for scans that failed QC),
+or --retry-wide to also try every 90-degree starting orientation (heads stored on their side).
 """
 import argparse
+import itertools
+import os
 import time
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 import matplotlib
@@ -55,6 +61,13 @@ def read_dicom(folder: Path, orient: str) -> sitk.Image:
     files = reader.GetGDCMSeriesFileNames(str(folder))
     if not files:
         raise RuntimeError("no DICOM series found")
+    if len(files) == 1:
+        # Newer scanners store the whole volume in one multi-frame file; the series reader
+        # would return it as a 4D image, so read the file directly.
+        image = sitk.ReadImage(files[0])
+        if image.GetDimension() != 3:
+            raise RuntimeError(f"single DICOM file is {image.GetDimension()}D, not 3D")
+        return sitk.DICOMOrient(sitk.Cast(image, sitk.sitkFloat32), orient)
     reader.SetFileNames(files)
     image = sitk.Cast(reader.Execute(), sitk.sitkFloat32)
     return sitk.DICOMOrient(image, orient)
@@ -83,7 +96,8 @@ def head_top(image: sitk.Image, keep_mm: float = 180.0) -> sitk.Image:
     return sitk.RegionOfInterest(image, size, [0, 0, bottom])
 
 
-def register(image: sitk.Image, template: sitk.Image, mask: sitk.Image) -> sitk.Transform:
+def register(image: sitk.Image, template: sitk.Image, mask: sitk.Image,
+             multi_start: bool = False) -> sitk.Transform:
     """Rigid then affine alignment to the template.
 
     Three choices made during the pilot (see docs/preprocessing_log.md):
@@ -112,15 +126,68 @@ def register(image: sitk.Image, template: sitk.Image, mask: sitk.Image) -> sitk.
         reg.Execute(template, image)
         return transform
 
-    rigid = sitk.CenteredTransformInitializer(
+    start = sitk.CenteredTransformInitializer(
         template, head_top(image), sitk.Euler3DTransform(),
         sitk.CenteredTransformInitializerFilter.MOMENTS)
-    rigid = run(rigid, [8, 4], [4, 2])
+    if not multi_start:
+        return to_affine_and_refine(run(start, [8, 4], [4, 2]), run)
+
+    # Retry mode for scans that failed QC: several starting tilts and heights, keep the rigid
+    # result that matches best, and refuse affine results that change head size implausibly.
+    # "wide" also starts from every 90-degree orientation, for heads stored on their side.
+    starts = [((p, 0, 0), s) for p, s in MULTI_STARTS]
+    if multi_start == "wide":
+        starts += [(angles, 0) for angles in right_angle_orientations()]
+    candidates = []
+    for (rx, ry, rz), shift_mm in starts:
+        rigid = sitk.Euler3DTransform(start)
+        rigid.SetRotation(*np.deg2rad([rx, ry, rz]))
+        rigid.SetTranslation(np.add(start.GetTranslation(), [0.0, 0.0, shift_mm]).tolist())
+        rigid = run(rigid, [8, 4], [4, 2])
+        candidates.append((score_transform(rigid, image, template, region), rigid))
+    best_rigid = max(candidates, key=lambda c: c[0])[1]
+    affine = to_affine_and_refine(best_rigid, run)
+    scales = np.linalg.svd(np.reshape(affine.GetMatrix(), (3, 3)), compute_uv=False)
+    if scales.min() < SCALE_RANGE[0] or scales.max() > SCALE_RANGE[1]:
+        return best_rigid  # affine stretched the head implausibly; the rigid result is safer
+    return affine
+
+
+# Starting (pitch in degrees, vertical shift in mm) pairs tried in retry mode
+MULTI_STARTS = [(0, 0), (-15, 0), (15, 0), (0, -20), (0, 20), (-30, 0), (30, 0),
+                (0, -40), (0, 40)]
+SCALE_RANGE = (0.75, 1.35)  # allowed stretch along any axis in retry mode
+
+
+def right_angle_orientations() -> list:
+    """The 23 non-identity ways to turn a box by multiples of 90 degrees, as Euler angles."""
+    found, seen = [], set()
+    for rx, ry, rz in itertools.product((0, 90, 180, 270), repeat=3):
+        turn = sitk.Euler3DTransform()
+        turn.SetRotation(*np.deg2rad([rx, ry, rz]))
+        key = tuple(np.round(turn.GetMatrix()).astype(int))
+        if key not in seen:
+            seen.add(key)
+            found.append((rx, ry, rz))
+    return found[1:]  # the first is no turn at all, already among MULTI_STARTS
+
+
+def to_affine_and_refine(rigid: sitk.Euler3DTransform, run) -> sitk.AffineTransform:
     affine = sitk.AffineTransform(3)
     affine.SetCenter(rigid.GetCenter())
     affine.SetMatrix(rigid.GetMatrix())
     affine.SetTranslation(rigid.GetTranslation())
     return run(affine, [4, 2], [2, 1])
+
+
+def score_transform(transform, image, template, region) -> float:
+    """Correlation with the template inside the brain region, on a 2x shrunken grid (fast)."""
+    small_t = sitk.Shrink(template, [2, 2, 2])
+    inside = sitk.GetArrayFromImage(sitk.Shrink(region, [2, 2, 2])) > 0
+    moved = sitk.Resample(image, small_t, transform, sitk.sitkLinear, 0.0)
+    a = sitk.GetArrayFromImage(moved)[inside]
+    b = sitk.GetArrayFromImage(small_t)[inside]
+    return float(np.corrcoef(a, b)[0, 1])
 
 
 def normalise(array: np.ndarray, brain: np.ndarray, clip: list) -> np.ndarray:
@@ -151,18 +218,28 @@ def save_qc_picture(array, brain, path: Path, title: str) -> None:
 
 
 # ---------------------------------------------------------------- one scan
-def process(image_id: int, cfg: dict, template, mask, start) -> dict:
-    steps, out = cfg["steps"], cfg["output"]
-    raw, out_dir, qc_dir = (Path(cfg["paths"][k]) for k in ("raw_scans", "out_dir", "qc_dir"))
-    folders = list(raw.rglob(f"I{image_id}"))
-    if not folders:
-        raise FileNotFoundError("scan folder not found")
+def find_scan_folders(raw: Path) -> dict:
+    """Map image ID -> its I<image_id> folder, found once for the whole raw scans tree.
 
-    image = read_dicom(folders[0], steps["orient"])
+    A scan downloaded twice has two folders; the first one found is used.
+    """
+    folders = {}
+    for path in sorted(raw.rglob("I*")):
+        if path.is_dir() and path.name[1:].isdigit():
+            folders.setdefault(int(path.name[1:]), path)
+    return folders
+
+
+def process(image_id: int, folder: Path, cfg: dict, template, mask, start,
+            multi_start: bool = False) -> dict:
+    steps, out = cfg["steps"], cfg["output"]
+    out_dir, qc_dir = (Path(cfg["paths"][k]) for k in ("out_dir", "qc_dir"))
+
+    image = read_dicom(folder, steps["orient"])
     in_size, in_spacing = image.GetSize(), [round(s, 2) for s in image.GetSpacing()]
     if steps["bias_correction"]:
         image = n4_correct(image, steps["n4_shrink_factor"])
-    transform = register(image, template, mask)
+    transform = register(image, template, mask, multi_start)
     aligned = sitk.Resample(image, template, transform, sitk.sitkLinear, 0.0)
 
     crop = lambda img: sitk.RegionOfInterest(img, out["shape"], start)  # noqa: E731
@@ -182,37 +259,78 @@ def process(image_id: int, cfg: dict, template, mask, start) -> dict:
             "template_correlation": round(score, 3), "flagged": flagged}
 
 
+# ---------------------------------------------------------------- workers
+_WORKER = {}
+
+
+def start_worker(cfg: dict, threads: int) -> None:
+    """Runs once in each worker process: load the template and share the CPU cores."""
+    sitk.ProcessObject.SetGlobalDefaultNumberOfThreads(threads)
+    template, mask, start = load_template(Path(cfg["paths"]["template_dir"]),
+                                          cfg["output"]["shape"])
+    _WORKER.update(cfg=cfg, template=template, mask=mask, start=start)
+
+
+def run_one(image_id: int, folder, multi_start: bool = False) -> dict:
+    """Process one scan and return its QC row. Errors are recorded, never raised."""
+    began = time.time()
+    row = {"image_id": image_id, "status": "ok", "error": "",
+           "tool": f"SimpleITK {sitk.Version_VersionString()}",
+           "registration": {"wide": "multi-start wide", True: "multi-start"}.get(
+               multi_start, "single start")}
+    try:
+        if folder is None:
+            raise FileNotFoundError("scan folder not found")
+        w = _WORKER
+        row.update(process(image_id, Path(folder), w["cfg"], w["template"], w["mask"],
+                           w["start"], multi_start))
+    except Exception as error:  # keep going; failures are logged for review
+        row.update(status="failed", error=f"{type(error).__name__}: {error}")
+    row["seconds"] = round(time.time() - began, 1)
+    return row
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--scans", required=True, help="CSV with an image_id column")
+    parser.add_argument("--workers", type=int, default=1,
+                        help="scans processed at the same time (about 0.5 GB memory each)")
+    parser.add_argument("--retry", action="store_true",
+                        help="redo every listed scan, even if done, with multi-start registration")
+    parser.add_argument("--retry-wide", action="store_true",
+                        help="like --retry, plus every 90-degree starting orientation (slower)")
+    parser.add_argument("--metrics", default="qc_metrics.csv",
+                        help="QC table name in the QC folder (use another name for tests)")
     args = parser.parse_args()
     cfg = yaml.safe_load(CONFIG.read_text())
     out_dir, qc_dir = Path(cfg["paths"]["out_dir"]), Path(cfg["paths"]["qc_dir"])
     out_dir.mkdir(parents=True, exist_ok=True)
     (qc_dir / "qc").mkdir(parents=True, exist_ok=True)
-    template, mask, start = load_template(Path(cfg["paths"]["template_dir"]),
-                                          cfg["output"]["shape"])
 
-    metrics_file = qc_dir / "qc_metrics.csv"
+    metrics_file = qc_dir / args.metrics
     rows = pd.read_csv(metrics_file).to_dict("records") if metrics_file.exists() else []
     done = {r["image_id"] for r in rows if r["status"] == "ok"}
     image_ids = pd.read_csv(args.scans)["image_id"].drop_duplicates().tolist()
-    versions = f"SimpleITK {sitk.Version_VersionString()}"
+    mode = "wide" if args.retry_wide else args.retry
+    todo = image_ids if mode else [i for i in image_ids if i not in done]
+    print("scans in list:", len(image_ids), "| already done:", len(image_ids) - len(todo),
+          "| to process:", len(todo), "| workers:", args.workers)
 
-    for number, image_id in enumerate(image_ids, 1):
-        if image_id in done:
-            continue
-        began = time.time()
-        row = {"image_id": image_id, "status": "ok", "error": "", "tool": versions}
-        try:
-            row.update(process(image_id, cfg, template, mask, start))
-        except Exception as error:  # keep going; failures are logged for review
-            row.update(status="failed", error=f"{type(error).__name__}: {error}")
-        row["seconds"] = round(time.time() - began, 1)
-        rows = [r for r in rows if r["image_id"] != image_id] + [row]
-        pd.DataFrame(rows).to_csv(metrics_file, index=False)
-        print(f"[{number}/{len(image_ids)}] {row['status']}  {row['seconds']}s  "
-              f"correlation {row.get('template_correlation', '-')}")
+    folders = find_scan_folders(Path(cfg["paths"]["raw_scans"]))
+    threads = max(1, (os.cpu_count() or 1) // args.workers)
+    began = time.time()
+    with ProcessPoolExecutor(args.workers, initializer=start_worker,
+                             initargs=(cfg, threads)) as pool:
+        jobs = [pool.submit(run_one, i, str(folders[i]) if i in folders else None, mode)
+                for i in todo]
+        for number, job in enumerate(as_completed(jobs), 1):
+            row = job.result()
+            rows = [r for r in rows if r["image_id"] != row["image_id"]] + [row]
+            pd.DataFrame(rows).to_csv(metrics_file, index=False)
+            left = (time.time() - began) / number * (len(todo) - number) / 3600
+            print(f"[{number}/{len(todo)}] {row['status']}  {row['seconds']}s  "
+                  f"correlation {row.get('template_correlation', '-')}  "
+                  f"about {left:.1f} h left", flush=True)
 
     table = pd.DataFrame(rows)
     print("\nok:", int((table["status"] == "ok").sum()),

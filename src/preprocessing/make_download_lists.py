@@ -4,7 +4,8 @@ Run from the repo root:  python -m src.preprocessing.make_download_lists
 
 Covers the essential scans: every MCI baseline scan and every CN baseline scan. Scans whose
 folder already exists under data/raw/scans are left out. Writes one comma-separated line per
-file to data/tables/download_lists/ (local only). Prints counts only.
+file to data/tables/download_lists/ (local only), and the full essential list to
+data/tables/essential_scans.csv (the input for preprocess.py). Prints counts only.
 """
 from pathlib import Path
 
@@ -21,6 +22,7 @@ def main() -> None:
     cn = pd.read_csv(TABLES / "cn_cohort.csv")
     cn = cn[cn["is_baseline"]]["image_id"]
     wanted = pd.concat([mci, cn]).drop_duplicates().tolist()
+    pd.DataFrame({"image_id": wanted}).to_csv(TABLES / "essential_scans.csv", index=False)
 
     have = {int(p.name[1:]) for p in RAW_SCANS.rglob("I*") if p.is_dir() and p.name[1:].isdigit()}
     todo = [i for i in wanted if i not in have]
