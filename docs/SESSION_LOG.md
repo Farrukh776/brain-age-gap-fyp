@@ -24,17 +24,36 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
   1 progressor removed from train). Counts in `cohort_definition.md`, method and failures in
   `preprocessing_log.md`. Per-subject table (local only): `data/tables/scan_qc_final.csv`.
 
+- Checked the cohort files again: `cohort_definition.md` (section A) trains the brain-age
+  model on all CN visits of training subjects; validation and test use baseline only. That is
+  1,110 later-visit scans from 335 of the 657 CN training subjects (1,114 minus 4 of subjects
+  removed at QC). The session 3 figure of about 1,550 also counted validation and test visits,
+  which are never used. Training set: 657 baseline + 1,110 later = 1,767 scans.
+- `make_download_lists.py --later-visits` wrote `data/tables/later_visit_scans.csv` and 6 lists
+  (`download_lists/later_01.txt` to `later_06.txt`, local only). Farrukh started the download
+  on 2026-11-16 (into `D:yp-dataaw\scans`).
+
 **Next (session 5)**
-1. Supervisor review of `cohort_definition.md` (still pending from step 4).
-2. Step 6: every later code must read the image to use from `data/tables/scan_qc_final.csv`
-   (column `image_id`, rows with status `excluded` dropped), not from the cohort tables.
-3. Decide how to get the training subjects' later CN visits (the brain-age cohort has 1,776
-   training scans across visits; only baseline scans are preprocessed). Those would need the
-   same download, preprocessing and visual check.
-4. Start step 6 with features for the CN subjects and the SVR / ridge baseline.
+1. Ask Farrukh whether the later-visit download has finished. Unpack each zip into its own new
+   folder under `data/raw/scans`, then run `check_scans.py` style completeness checks on the
+   1,110 IDs.
+2. Preprocess them: `python -m src.preprocessing.preprocess --scans
+   data/tables/later_visit_scans.csv --workers 3` (about 6 h). Check every scan by eye
+   (`qc_sheets.py --new-only`, `record_review.py`), `--retry` the misaligned ones, apply
+   decision 17. A failed later visit is simply dropped (the subject keeps its other scans);
+   record the counts in `preprocessing_log.md` and add the visits to `scan_qc_final.csv` or a
+   companion table.
+3. These later visits are needed for the 3D CNN. Step 6 can start without them: features for
+   the CN subjects and the SVR / ridge baseline on baseline scans. Decide first whether to use
+   the FreeSurfer 7.x table for the baseline model, and whether the baseline model also uses
+   the later visits.
+4. Every later code must read the image to use from `data/tables/scan_qc_final.csv` (column
+   `image_id`, rows with status `excluded` dropped), not from the cohort tables.
+5. Supervisor review of `cohort_definition.md` (still pending from step 4).
 
 **Open questions**
-- Should the brain-age model train on baseline scans only, or on all training visits?
+- Does the SVR / ridge baseline train on baseline scans only or on all training visits?
+  (The 3D CNN uses all training visits, per `cohort_definition.md`.)
 
 ---
 

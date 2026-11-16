@@ -68,6 +68,14 @@
 - `--retry-wide`: also the 23 other 90-degree orientations (32 starts, about 6 min per scan).
 - Previous outputs of retried scans were backed up locally before each retry.
 
+## Later CN training visits (2026-11-16)
+- The brain-age training set uses every CN visit of the training subjects
+  (`cohort_definition.md`, section A): 1,110 later-visit scans on top of the baseline scans.
+- `python -m src.preprocessing.make_download_lists --later-visits` writes
+  `data/tables/later_visit_scans.csv` (the input for `preprocess.py`) and the ADNI lists.
+- Same pipeline, same visual check and same rules (decisions 16, 17). A failed later visit is
+  dropped; the subject keeps its other scans and stays in its split.
+
 ## Run history
 | Date | Who | Scans in | Succeeded | Failed | Notes |
 |---|---|---|---|---|---|

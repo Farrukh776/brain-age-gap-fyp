@@ -33,6 +33,8 @@ Tick items as they are completed. Steps are done in order.
 - [x] Pilot on 10 scans, visually checked
 - [x] Full batch run (1,401 baseline scans, every scan checked by eye, 2026-11-16)
 - [x] Failures and parameters logged in `docs/preprocessing_log.md` (1,393 of 1,401 subjects usable)
+- [ ] Later CN training visits (1,110 scans) downloaded, preprocessed and checked by eye
+      (needed before the 3D CNN; download started 2026-11-16)
 
 ## Step 6: Brain-age model
 - [ ] Features extracted for CN subjects
