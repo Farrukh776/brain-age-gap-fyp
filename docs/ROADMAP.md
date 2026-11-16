@@ -28,11 +28,11 @@ Tick items as they are completed. Steps are done in order.
 - [x] Class balance and exclusion counts reported (in `docs/cohort_definition.md`)
 
 ## Step 5: MRI preprocessing
-- [ ] Baseline T1 scans downloaded for both cohorts
+- [x] Baseline T1 scans downloaded for both cohorts (1,401 of 1,401, checked 2026-11-16)
 - [x] Preprocessing tool chosen and recorded in `decisions.md` (decision 13)
 - [x] Pilot on 10 scans, visually checked
-- [ ] Full batch run
-- [ ] Failures and parameters logged in `docs/preprocessing_log.md`
+- [x] Full batch run (1,401 baseline scans, every scan checked by eye, 2026-11-16)
+- [x] Failures and parameters logged in `docs/preprocessing_log.md` (1,393 of 1,401 subjects usable)
 
 ## Step 6: Brain-age model
 - [ ] Features extracted for CN subjects

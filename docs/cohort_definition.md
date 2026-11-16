@@ -78,6 +78,9 @@ Exclusion:
   strengths on the same day) and are not used; this affects at most 3 candidate subjects.
 - One image per session: the first (non-repeat), non-accelerated acquisition when available.
   ADNI3 and ADNI4 only have accelerated scans, so those are used there.
+- Non-T1 images in the T1 manifest (localizer, scout, survey, calibration, FLAIR, T2) are never
+  chosen (decision 15, 2026-11-16). This replaced the image for 2 sessions (1 CN, 1 MCI) with
+  the T1 from the same session; subjects, sessions, counts and splits did not change.
 - Age is scan date minus date of birth (ADNI gives month and year; the 15th is assumed).
 
 ## Counts (built and split 2026-11-14, before scan QC)
@@ -91,6 +94,20 @@ Progression cohort: 454 subjects, 34% progressors in every split.
 Brain-age cohort: 2497 scans in total; the training subjects have 1776 scans across visits.
 Validation and test use the baseline scan only (142 and 143 scans).
 
+## Counts after scan QC (2026-11-16)
+Every baseline scan was preprocessed and checked by eye (see `preprocessing_log.md`, decisions
+16 and 17). 3 failed scans were replaced by another T1 from the same session; 8 subjects had
+no usable scan and were removed from their split (nobody was moved).
+
+| Cohort | Before QC | Failed scan QC | After QC | Train | Val | Test |
+|---|---|---|---|---|---|---|
+| CN (subjects) | 947 | 7 | 940 | 657 | 141 | 142 |
+| MCI stable | 299 | 0 | 299 | 209 | 45 | 45 |
+| MCI progressor | 155 | 1 | 154 | 107 | 23 | 24 |
+
+Only baseline scans have been preprocessed so far; the training subjects' later CN visits are
+not yet downloaded.
+
 ## Exclusion log
 | Cohort | Rule | Subjects removed |
 |---|---|---|
@@ -102,3 +119,5 @@ Validation and test use the baseline scan only (142 and 143 scans).
 | MCI | Follow-up under 36 months without conversion | 486 |
 | MCI | No 3 T scan within 90 days of baseline | 262 |
 | MCI | Missing age or sex | 0 |
+| CN | Failed scan QC (misaligned or artefact, no usable same-session T1) | 7 |
+| MCI | Failed scan QC (misaligned, no other T1 in the session) | 1 |

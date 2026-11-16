@@ -5,6 +5,39 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ---
 
+## 2026-11-16 (Session 4)
+
+**Current step:** 5 (MRI preprocessing) is finished for the baseline scans. Next is step 6
+(brain-age model).
+
+**Done**
+- All 1,401 essential baseline scans downloaded and checked complete (`check_scans.py`).
+  Two input fixes: multi-frame single-file DICOMs are read directly; non-T1 images (localizer,
+  FLAIR) are never chosen (decision 15).
+- Full preprocessing run with 3 workers (about 7 h): 1,401 succeeded, 0 errors.
+- Every scan checked by eye on contact sheets (`qc_sheets.py`, `record_review.py`; decision 16).
+  The 0.30 score alone missed slight tilts and flagged some aligned scans.
+- Misaligned scans redone with `--retry` (58 of 65 fixed) and `--retry-wide` (0 of 7 fixed).
+- Image-quality rule set (decision 17): artefacts over brain tissue fail QC.
+- Failed scans replaced by another T1 from the same session where one existed (6 downloaded,
+  3 passed). Final: 1,393 of 1,401 subjects usable; CN 940 (657/141/142), MCI 453 (316/68/69,
+  1 progressor removed from train). Counts in `cohort_definition.md`, method and failures in
+  `preprocessing_log.md`. Per-subject table (local only): `data/tables/scan_qc_final.csv`.
+
+**Next (session 5)**
+1. Supervisor review of `cohort_definition.md` (still pending from step 4).
+2. Step 6: every later code must read the image to use from `data/tables/scan_qc_final.csv`
+   (column `image_id`, rows with status `excluded` dropped), not from the cohort tables.
+3. Decide how to get the training subjects' later CN visits (the brain-age cohort has 1,776
+   training scans across visits; only baseline scans are preprocessed). Those would need the
+   same download, preprocessing and visual check.
+4. Start step 6 with features for the CN subjects and the SVR / ridge baseline.
+
+**Open questions**
+- Should the brain-age model train on baseline scans only, or on all training visits?
+
+---
+
 ## 2026-11-14 to 2026-11-15 (Session 3)
 
 **Current step:** 5 (MRI preprocessing). Pilot done; the download of the essential scans is in
