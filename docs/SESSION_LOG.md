@@ -5,6 +5,39 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ---
 
+## 2026-11-18 (Session 5)
+
+**Current step:** 5 (MRI preprocessing) is complete, including the later CN training visits.
+Next is step 6 (brain-age model).
+
+**Done**
+- The later-visit download (1,110 scans, two zips) was unpacked into its own folders and
+  checked complete (`check_scans.py --scans data/tables/later_visit_scans.csv`, new option).
+- Preprocessed all 1,110 with 3 workers. The laptop lost power at 1,068; the run was restarted
+  and skipped finished scans. 0 errors.
+- Every scan checked by eye: 1,079 ok, 28 misaligned, 3 failed (artefact or unusable image).
+  `--retry` fixed 29 of 36 problem scans; `--retry-wide` fixed none of the last 6.
+- 9 later visits failed QC and were dropped; no subject was removed.
+- New `src/preprocessing/make_training_scans.py` writes `data/tables/cn_train_scans.csv`
+  (local only): 657 training subjects, 657 baseline + 1,101 later visits = 1,758 scans.
+  All 1,101 later outputs checked: 160 x 192 x 160 at 1 mm, no blank or invalid values.
+
+**Next (session 6)**
+1. Supervisor review of `cohort_definition.md` (still pending from step 4).
+2. Step 6: the brain-age model reads CN training scans from `data/tables/cn_train_scans.csv`
+   and validation/test (and MCI) scans from `data/tables/scan_qc_final.csv`
+   (status not `excluded`).
+3. Decide whether the SVR / ridge baseline uses the FreeSurfer 7.x table or features from the
+   preprocessed images, and whether it trains on baseline scans only or all 1,758.
+4. Start step 6 with features for the CN subjects and the SVR / ridge baseline.
+
+**Open questions**
+- Five later visits came out with the brain smaller than the template outline after every
+  retry (scalp matched to the brain edge). They are dropped; if many more scans of this kind
+  appear later, revisit the registration (for example a brain-only template).
+
+---
+
 ## 2026-11-16 (Session 4)
 
 **Current step:** 5 (MRI preprocessing) is finished for the baseline scans. Next is step 6
@@ -31,7 +64,8 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
   which are never used. Training set: 657 baseline + 1,110 later = 1,767 scans.
 - `make_download_lists.py --later-visits` wrote `data/tables/later_visit_scans.csv` and 6 lists
   (`download_lists/later_01.txt` to `later_06.txt`, local only). Farrukh started the download
-  on 2026-11-16 (into `D:yp-dataaw\scans`).
+  on 2026-11-16 (into `D:yp-data
+aw\scans`).
 
 **Next (session 5)**
 1. Ask Farrukh whether the later-visit download has finished. Unpack each zip into its own new

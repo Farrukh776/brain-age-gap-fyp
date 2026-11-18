@@ -105,8 +105,8 @@ no usable scan and were removed from their split (nobody was moved).
 | MCI stable | 299 | 0 | 299 | 209 | 45 | 45 |
 | MCI progressor | 155 | 1 | 154 | 107 | 23 | 24 |
 
-Only baseline scans have been preprocessed so far; the training subjects' later CN visits are
-not yet downloaded.
+Brain-age training scans after QC (2026-11-18): 657 baseline scans plus 1,101 of 1,110 later CN
+visits = 1,758 scans (9 later visits failed scan QC and were dropped; no subject was removed).
 
 ## Exclusion log
 | Cohort | Rule | Subjects removed |

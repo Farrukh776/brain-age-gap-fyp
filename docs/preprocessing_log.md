@@ -75,6 +75,11 @@
   `data/tables/later_visit_scans.csv` (the input for `preprocess.py`) and the ADNI lists.
 - Same pipeline, same visual check and same rules (decisions 16, 17). A failed later visit is
   dropped; the subject keeps its other scans and stays in its split.
+- Result (2026-11-18): all 1,110 downloaded and complete (`check_scans.py --scans`);
+  1,101 passed the visual check, 9 failed (see Failures). Training set after QC: 657 subjects,
+  657 baseline + 1,101 later visits = 1,758 scans, written by
+  `python -m src.preprocessing.make_training_scans` to `data/tables/cn_train_scans.csv`
+  (local only; the brain-age model reads its scan list from there).
 
 ## Run history
 | Date | Who | Scans in | Succeeded | Failed | Notes |
@@ -84,6 +89,9 @@
 | 2026-11-16 | Farrukh (with Claude) | 1,391 (full run, all remaining essential scans; 1,401 in total with the 10 pilot scans) | 1,401 | 0 | 3 workers, about 18 s per scan overall, about 7 h. 52 flagged below 0.30. All 1,401 checked by eye: 1,341 ok, 55 misaligned, 5 image artefacts. |
 | 2026-11-16 | Farrukh (with Claude) | 65 (`--retry`: the 55 misaligned plus 10 more scoring below 0.30) | 65 | 0 | 58 aligned after the retry, checked by eye; 7 still misaligned. |
 | 2026-11-16 | Farrukh (with Claude) | 7 (`--retry-wide`) | 7 | 0 | None aligned (heads with the face and neck filling the brain box). |
+| 2026-11-18 | Farrukh (with Claude) | 1,110 (later CN training visits) | 1,110 | 0 | 3 workers. The laptop lost power at 1,068; the run was restarted and skipped finished scans. All 1,110 checked by eye: 1,079 ok, 28 misaligned, 3 failed (artefact or unusable image). |
+| 2026-11-18 | Farrukh (with Claude) | 36 (`--retry`: 28 misaligned plus 8 more scoring below 0.30) | 36 | 0 | 29 aligned after the retry, checked by eye; 6 still misaligned (5 with the brain smaller than the outline, 1 pitched); the unusable image stayed failed. |
+| 2026-11-18 | Farrukh (with Claude) | 6 (`--retry-wide`) | 6 | 0 | None aligned. |
 | 2026-11-16 | Farrukh (with Claude) | 6 (other T1 images from the same session, downloaded for failed scans) | 6 | 0 | Checked by eye: 3 passed and replace a failed scan; 3 failed (1 misaligned, 1 ringing, 1 noisy backup that was not needed). See Failures. |
 
 ## Failures
@@ -94,6 +102,8 @@ Counts only; image IDs are in the local tables named above.
 | Misaligned after `--retry` and `--retry-wide` | 7 (6 CN, 1 MCI) | Same-session T1 used where one exists (2 of 7) | 1 MCI replaced; 1 CN repeat also misaligned; 6 subjects excluded (5 CN, 1 MCI) |
 | Artefact over brain tissue (motion, ringing, streaks, noise) | 4 (2 CN, 2 MCI) | Same-session T1 used where one exists (3 of 4) | 2 MCI replaced; 1 CN repeat had the same ringing; 2 CN subjects excluded |
 | Line artefact outside the brain only | 1 | Kept (decision 17) | ok |
+| Later CN visit: artefact or unusable image | 3 | Visit dropped | subjects keep their other scans |
+| Later CN visit: misaligned after `--retry` and `--retry-wide` | 6 | Visit dropped | subjects keep their other scans |
 
 Final: 1,393 of 1,401 subjects have a usable scan (3 of them a same-session replacement).
 CN 940 of 947 (train 657, val 141, test 142); MCI 453 of 454 (train 316, val 68, test 69;
