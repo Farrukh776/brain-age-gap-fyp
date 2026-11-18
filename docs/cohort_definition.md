@@ -108,6 +108,26 @@ no usable scan and were removed from their split (nobody was moved).
 Brain-age training scans after QC (2026-11-18): 657 baseline scans plus 1,101 of 1,110 later CN
 visits = 1,758 scans (9 later visits failed scan QC and were dropped; no subject was removed).
 
+## Final data after preprocessing and QC (2026-11-18)
+Terms: a **subject** is one person; a **scan** (ADNI "image", one image ID) is one MRI. Each
+visit contributes one scan. CN training subjects have one scan per CN visit; everyone else has
+one baseline scan.
+
+| Cohort | Split | Subjects | Scans | Notes |
+|---|---|---|---|---|
+| CN | Train | 657 | 1,758 | 657 baseline + 1,101 later visits; 1 to 11 scans per subject (324 have 1) |
+| CN | Validation | 141 | 141 | baseline only |
+| CN | Test | 142 | 142 | baseline only |
+| MCI | Train | 316 | 316 | 209 stable, 107 progressors |
+| MCI | Validation | 68 | 68 | 45 stable, 23 progressors |
+| MCI | Test | 69 | 69 | 45 stable, 24 progressors |
+| **Total** | | **1,393** | **2,494** | |
+
+`data/processed` holds 2,517 files; the 23 extra are scans that failed QC (11 baseline, 3
+same-session repeats, 9 later visits) and are never used. Which scan to use always comes from
+`data/tables/cn_train_scans.csv` (CN training) and `data/tables/scan_qc_final.csv` (everything
+else), never from the folder (decision 18).
+
 ## Exclusion log
 | Cohort | Rule | Subjects removed |
 |---|---|---|

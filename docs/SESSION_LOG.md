@@ -21,6 +21,10 @@ Next is step 6 (brain-age model).
 - New `src/preprocessing/make_training_scans.py` writes `data/tables/cn_train_scans.csv`
   (local only): 657 training subjects, 657 baseline + 1,101 later visits = 1,758 scans.
   All 1,101 later outputs checked: 160 x 192 x 160 at 1 mm, no blank or invalid values.
+- Final data summary (subjects vs scans per cohort and split) added to
+  `cohort_definition.md`; decision 18 records how failed later visits are handled.
+- Steps 1 to 5 are done except the items that need teammates or the supervisor (IDA access
+  for all members, collaborators, env on their machines, GPU booking, supervisor review).
 
 **Next (session 6)**
 1. Supervisor review of `cohort_definition.md` (still pending from step 4).
