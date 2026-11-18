@@ -1,6 +1,6 @@
 """Check that every essential scan is on disk and complete. Prints counts only.
 
-Run from the repo root:  python -m src.preprocessing.check_scans
+Run from the repo root:  python -m src.preprocessing.check_scans [--scans <csv>]
 
 Essential scans = every MCI scan + every CN baseline scan in data/tables (same list as
 make_download_lists.py, pilot scans included). For each one it checks that:
@@ -10,8 +10,10 @@ make_download_lists.py, pilot scans included). For each one it checks that:
 Whether the slices form one readable series is tested by preprocess.py, which reads every
 series in full and records any scan it cannot read as failed.
 Scans found in more than one folder (repeated downloads) are compared and reported.
-Writes the per-scan result to outputs/preprocessing/scan_check.csv (local only).
+Writes the per-scan result to outputs/preprocessing/scan_check.csv, or
+scan_check_<list name>.csv with --scans (local only).
 """
+import argparse
 import os
 from collections import defaultdict
 from pathlib import Path
@@ -43,10 +45,19 @@ def check_folder(folder: Path) -> tuple[str, int]:
 
 
 def main() -> None:
-    mci = pd.read_csv(TABLES / "mci_cohort.csv")[["image_id"]].assign(cohort="MCI")
-    cn = pd.read_csv(TABLES / "cn_cohort.csv")
-    cn = cn[cn["is_baseline"]][["image_id"]].assign(cohort="CN")
-    wanted = pd.concat([mci, cn]).drop_duplicates("image_id")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--scans", help="CSV with an image_id column instead of the essential "
+                        "scans (for example data/tables/later_visit_scans.csv)")
+    args = parser.parse_args()
+    if args.scans:
+        wanted = pd.read_csv(args.scans)[["image_id"]].drop_duplicates().assign(cohort="list")
+        out = OUT.with_name(f"scan_check_{Path(args.scans).stem}.csv")
+    else:
+        mci = pd.read_csv(TABLES / "mci_cohort.csv")[["image_id"]].assign(cohort="MCI")
+        cn = pd.read_csv(TABLES / "cn_cohort.csv")
+        cn = cn[cn["is_baseline"]][["image_id"]].assign(cohort="CN")
+        wanted = pd.concat([mci, cn]).drop_duplicates("image_id")
+        out = OUT
 
     folders = defaultdict(list)
     for p in RAW_SCANS.rglob("I*"):
@@ -71,18 +82,18 @@ def main() -> None:
                      "n_files": n_files, "copies": len(found)})
 
     table = pd.DataFrame(rows)
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    table.to_csv(OUT, index=False)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    table.to_csv(out, index=False)
 
-    print("essential scans:", len(table))
+    print("scans checked:", len(table))
     print(table.groupby(["cohort", "status"]).size().to_string())
     ok = table[table["status"] == "ok"]  # slice counts only for scans stored as one file per slice
     print("slices per scan (ok scans): min", ok["n_files"].min(), "| median",
           int(ok["n_files"].median()), "| max", ok["n_files"].max())
     print("scans present in more than one folder:", int((table["copies"] > 1).sum()))
     extra = set(folders) - set(table["image_id"])
-    print("scan folders on disk not in the essential list:", len(extra))
-    print("details:", OUT)
+    print("scan folders on disk not in this list:", len(extra))
+    print("details:", out)
 
 
 if __name__ == "__main__":
