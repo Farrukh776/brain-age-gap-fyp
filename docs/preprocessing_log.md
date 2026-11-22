@@ -81,6 +81,35 @@
   `python -m src.preprocessing.make_training_scans` to `data/tables/cn_train_scans.csv`
   (local only; the brain-age model reads its scan list from there).
 
+## Final check before modelling (2026-11-22)
+`python -m src.preprocessing.verify_processed --workers 6` (about 6 min) re-reads every scan the
+models use and checks: file decompresses; shape, voxel size, orientation and origin equal the
+template box; float32; no NaN/inf; z-score inside the brain mask (mean 0, SD 1); share of brain at
+the clip limits (about 0.5% expected); top of brain not cut off; correlation equals the QC record;
+identical files; same person under two subject IDs; tables and splits consistent. FLAG lines are
+errors, LOOK lines are scans to view by eye. Re-run it after copying scans to another machine.
+
+All 2,494 scans passed the file, header and value checks. Two problems were found:
+1. **Tilted scans the eye check missed.** Each CN training scan was registered to the same
+   subject's most typical other scan: normal scans need under 2.1 mm and 0.3 degrees of
+   movement, but about 15 needed 5 to 12 degrees. To check scans without a second visit, a
+   study mean image was built from all scans (in MNI space) and every scan registered to it
+   (affine). Rotation separates the two groups (controls up to 2.5 degrees, confirmed tilts
+   3.7 to 14 degrees); millimetres of movement do not (affine also removes normal head-size
+   differences); this check is `python -m src.preprocessing.check_tilt --workers 6` (about
+   70 min). 66 scans rotated more than 4 degrees and were redone with `--retry-wide`
+   (originals backed up): 18 were tilted and are now 0.3 to 2.8 degrees (all checked by eye);
+   33 came back unchanged (head shape, not misalignment; the 6 above 5 degrees were checked by
+   eye and are aligned); 15 got worse and the originals were restored. Also 4 scans found
+   earlier in this check: 3 fixed with `--retry-wide`, 1 CN training baseline still too small
+   after every retry and removed (decision 17).
+2. **Same person under two subject IDs** (4 pairs, decision 20); found because their images
+   correlated 0.92 to 0.98, against at most 0.82 for different people of the same site, birth
+   month and sex.
+
+The template used for registration is shown in `docs/figures/mni_template.png`
+(`python -m src.preprocessing.template_figure`).
+
 ## Run history
 | Date | Who | Scans in | Succeeded | Failed | Notes |
 |---|---|---|---|---|---|
@@ -92,6 +121,8 @@
 | 2026-11-18 | Farrukh (with Claude) | 1,110 (later CN training visits) | 1,110 | 0 | 3 workers. The laptop lost power at 1,068; the run was restarted and skipped finished scans. All 1,110 checked by eye: 1,079 ok, 28 misaligned, 3 failed (artefact or unusable image). |
 | 2026-11-18 | Farrukh (with Claude) | 36 (`--retry`: 28 misaligned plus 8 more scoring below 0.30) | 36 | 0 | 29 aligned after the retry, checked by eye; 6 still misaligned (5 with the brain smaller than the outline, 1 pitched); the unusable image stayed failed. |
 | 2026-11-18 | Farrukh (with Claude) | 6 (`--retry-wide`) | 6 | 0 | None aligned. |
+| 2026-11-22 | Farrukh (with Claude) | 3 (`--retry-wide`, misaligned scans found in the final check) | 3 | 0 | All 3 aligned, checked by eye. 1 more scan (CN train baseline) still too small after `--retry-wide`; subject removed. |
+| 2026-11-22 | Farrukh (with Claude) | 66 (`--retry-wide`, rotated more than 4 degrees against the study mean) | 66 | 0 | 6 workers, about 1.5 h. 18 fixed (checked by eye), 33 unchanged, 15 worse and restored from backup. |
 | 2026-11-16 | Farrukh (with Claude) | 6 (other T1 images from the same session, downloaded for failed scans) | 6 | 0 | Checked by eye: 3 passed and replace a failed scan; 3 failed (1 misaligned, 1 ringing, 1 noisy backup that was not needed). See Failures. |
 
 ## Failures
@@ -105,6 +136,8 @@ Counts only; image IDs are in the local tables named above.
 | Later CN visit: artefact or unusable image | 3 | Visit dropped | subjects keep their other scans |
 | Later CN visit: misaligned after `--retry` and `--retry-wide` | 6 | Visit dropped | subjects keep their other scans |
 
-Final: 1,393 of 1,401 subjects have a usable scan (3 of them a same-session replacement).
-CN 940 of 947 (train 657, val 141, test 142); MCI 453 of 454 (train 316, val 68, test 69;
-1 progressor excluded from train).
+| Baseline misaligned, found in the final check (2026-11-22) | 1 CN | No other T1 in the session | subject excluded |
+
+Final (2026-11-22): 1,392 of 1,401 subjects have a usable scan; 4 more CN subjects were removed
+as duplicate enrolments (decision 20), leaving 1,388. CN 935 (train 654, val 140, test 141);
+MCI 453 of 454 (train 316, val 68, test 69; 1 progressor excluded from train).

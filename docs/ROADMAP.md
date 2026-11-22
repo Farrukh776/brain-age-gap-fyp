@@ -35,6 +35,12 @@ Tick items as they are completed. Steps are done in order.
 - [x] Failures and parameters logged in `docs/preprocessing_log.md` (1,393 of 1,401 subjects usable)
 - [x] Later CN training visits (1,110 scans) downloaded, preprocessed and checked by eye
       (2026-11-18: 1,101 usable; brain-age training set 1,758 scans)
+- [x] Final check of every scan before modelling (2026-11-22: 21 tilted scans fixed or removed,
+      4 duplicate enrolments removed; 1,388 subjects, 2,489 scans; decisions 20 and 21)
+
+## Step 6 preparation
+- [x] Feature source for the SVR / ridge baseline decided: own image features (decision 19)
+- [x] Registration template figure for the report (`docs/figures/mni_template.png`)
 
 ## Step 6: Brain-age model
 - [ ] Features extracted for CN subjects

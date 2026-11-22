@@ -5,6 +5,42 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ---
 
+## 2026-11-22 (Session 6)
+
+**Current step:** 6 (brain-age model). Preprocessing was re-checked end to end; the data is now
+final. Feature extraction has not started.
+
+**Done**
+- FreeSurfer coverage check (`src/brain_age/check_fs_coverage.py`): the UCSFFSX7 table misses
+  3 to 8% of each split and is mostly unrated. Decision 19: the baseline uses features from our
+  own preprocessed images.
+- New `src/preprocessing/verify_processed.py`: every scan the models read passed file, header,
+  value and z-score checks; tables and splits consistent.
+- Found 4 people enrolled under two subject IDs (3 split across train/val/test). Decision 20:
+  keep the earlier enrolment. Removed 4 CN subjects (train 2, val 1, test 1).
+- Found tilted scans the eye check had missed. New `src/preprocessing/check_tilt.py` (study
+  mean image, rotation per scan; decision 21). 3 + 18 scans re-aligned with `--retry-wide` and
+  checked by eye; 15 retries that got worse were restored; 1 CN training baseline still
+  misaligned and removed (decision 17).
+- Final: 1,388 subjects, 2,489 scans. CN train 654 subjects / 1,755 scans, val 140, test 141;
+  MCI 316 / 68 / 69 (unchanged). Counts in `cohort_definition.md`, method in
+  `preprocessing_log.md`.
+- Report figure of the MNI ICBM152 2009a template with brain mask and crop box:
+  `docs/figures/mni_template.png` (`src/preprocessing/template_figure.py`).
+
+**Next (session 7)**
+1. Supervisor review of `cohort_definition.md` (still pending; now includes decision 20).
+2. Choose the image features for the SVR / ridge baseline (for example atlas regional means or
+   downsampled voxels + PCA fitted on train), then extract them for all CN scans.
+3. Train the SVR / ridge baseline with subject-grouped CV on train; report MAE, RMSE and
+   correlation on validation.
+
+**Open questions**
+- 33 scans stay at 4 to 6 degrees against the study mean after retry; checked by eye and
+  aligned (head shape). If the baseline shows outliers among them, revisit.
+
+---
+
 ## 2026-11-18 (Session 5)
 
 **Current step:** 5 (MRI preprocessing) is complete, including the later CN training visits.

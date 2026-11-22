@@ -108,23 +108,34 @@ no usable scan and were removed from their split (nobody was moved).
 Brain-age training scans after QC (2026-11-18): 657 baseline scans plus 1,101 of 1,110 later CN
 visits = 1,758 scans (9 later visits failed scan QC and were dropped; no subject was removed).
 
-## Final data after preprocessing and QC (2026-11-18)
+## Final check before modelling (2026-11-22)
+Every scan the models read was checked again (`src/preprocessing/verify_processed.py`, see
+`preprocessing_log.md`). Two cohort changes followed:
+- **Same person under two subject IDs (decision 20).** 4 people were enrolled twice in ADNI (same
+  site, date of birth and sex; near-identical brain images). 3 of the 4 pairs sat in different
+  splits (train/val, train/test, test/train). The enrolment with the later baseline scan was
+  removed (marked excluded, nobody moved): 1 CN train, 1 CN val, 1 CN test, 1 CN train.
+- **1 CN training baseline failed alignment** (brain smaller than the template after every
+  retry, no other T1 in the session) and the subject was removed (decision 17).
+
+## Final data after preprocessing and QC (2026-11-22)
 Terms: a **subject** is one person; a **scan** (ADNI "image", one image ID) is one MRI. Each
 visit contributes one scan. CN training subjects have one scan per CN visit; everyone else has
 one baseline scan.
 
 | Cohort | Split | Subjects | Scans | Notes |
 |---|---|---|---|---|
-| CN | Train | 657 | 1,758 | 657 baseline + 1,101 later visits; 1 to 11 scans per subject (324 have 1) |
-| CN | Validation | 141 | 141 | baseline only |
-| CN | Test | 142 | 142 | baseline only |
+| CN | Train | 654 | 1,755 | 654 baseline + 1,101 later visits; 1 to 11 scans per subject (321 have 1) |
+| CN | Validation | 140 | 140 | baseline only |
+| CN | Test | 141 | 141 | baseline only |
 | MCI | Train | 316 | 316 | 209 stable, 107 progressors |
 | MCI | Validation | 68 | 68 | 45 stable, 23 progressors |
 | MCI | Test | 69 | 69 | 45 stable, 24 progressors |
-| **Total** | | **1,393** | **2,494** | |
+| **Total** | | **1,388** | **2,489** | |
 
-`data/processed` holds 2,517 files; the 23 extra are scans that failed QC (11 baseline, 3
-same-session repeats, 9 later visits) and are never used. Which scan to use always comes from
+`data/processed` holds 2,517 files; the 28 extra are scans that failed QC (12 baseline, 3
+same-session repeats, 9 later visits) or belong to the 4 removed duplicate enrolments, and are
+never used. Which scan to use always comes from
 `data/tables/cn_train_scans.csv` (CN training) and `data/tables/scan_qc_final.csv` (everything
 else), never from the folder (decision 18).
 
@@ -139,5 +150,6 @@ else), never from the folder (decision 18).
 | MCI | Follow-up under 36 months without conversion | 486 |
 | MCI | No 3 T scan within 90 days of baseline | 262 |
 | MCI | Missing age or sex | 0 |
-| CN | Failed scan QC (misaligned or artefact, no usable same-session T1) | 7 |
+| CN | Failed scan QC (misaligned or artefact, no usable same-session T1) | 8 (1 found in the 2026-11-22 check) |
+| CN | Same person as an earlier-enrolled subject (decision 20) | 4 |
 | MCI | Failed scan QC (misaligned, no other T1 in the session) | 1 |
