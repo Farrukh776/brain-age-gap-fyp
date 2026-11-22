@@ -3,6 +3,10 @@ seed: 42
 paths:
   cohort_table: data/tables/cn_cohort.csv
   splits: data/tables/cn_splits.csv
+  train_scans: data/tables/cn_train_scans.csv     # all CN training visits (decision 18)
+  scan_qc: data/tables/scan_qc_final.csv          # val/test and MCI baseline scans
+  mci_cohort_table: data/tables/mci_cohort.csv
+  freesurfer_table: data/raw/tables/UCSFFSX7_13Nov2026.csv
   out_dir: outputs/brain_age
 baseline:
   model: svr               # svr or ridge
