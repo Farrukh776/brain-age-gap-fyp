@@ -5,6 +5,39 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ---
 
+## 2026-11-23 (Session 8)
+
+**Current step:** 6 (brain-age model). The 3D CNN is trained. Next is the age-bias plot and
+correction (fitted on training data only), then choosing the final model on validation.
+
+**Done**
+- Decision 29: supervisor approved Colab from Farrukh's personal Gmail (the university account
+  kept getting "failed to assign a backend"). The university Drive folder is shared with that
+  Gmail; all ADNI-derived files are deleted from the personal account once the CNN work is final.
+- Colab: zip copied and unpacked, all 2,489 arrays and 6 tables matched the manifest; smoke test
+  passed on the T4.
+- Resume crashed on the GPU (`RNG state must be a torch.ByteTensor`): `map_location` had moved
+  the saved random state to the GPU. Fixed in `train_cnn.py` (state moved back to the CPU; CUDA
+  random state now saved too); the run resumed at epoch 7 as intended.
+- Run cnn-1: 66 epochs (early stop), about 32 s per epoch. Best epoch 51: validation MAE 3.45,
+  RMSE 4.33, r 0.79, gap-vs-age slope -0.29. Ridge: 3.79 / 4.88 / 0.71 / -0.47.
+- pip on Colab warns about pandas 3 vs Colab's own packages; harmless (same pandas as the laptop).
+
+**Next (session 9)**
+1. Download `fyp-adni-private/cnn/cnn-1/` from Drive into `outputsrain_age\cnn\` on the laptop.
+2. Age-bias plot for ridge and CNN on validation.
+3. Decide how to fit the CNN bias correction on training data: the CNN fits its own training
+   scans far better than new ones (train MAE 1.5 vs val 3.45), so it needs out-of-fold training
+   predictions, e.g. 5 extra CNN runs with subject-grouped folds (about 35 min each on Colab).
+   Ridge already has out-of-fold predictions.
+4. Choose the final model on validation; report once on test.
+
+**Open questions**
+- 5-fold CNN for out-of-fold predictions, or another way to fit the CNN bias correction?
+- Supervisor review of `cohort_definition.md` still pending.
+
+---
+
 ## 2026-11-23 (Session 7)
 
 **Current step:** 6 (brain-age model). Features extracted, SVR / ridge baseline trained, 3D CNN

@@ -49,7 +49,8 @@ Tick items as they are completed. Steps are done in order.
       (2026-11-23: ridge, val MAE 3.79, RMSE 4.88, r 0.71; decision 24)
 - [x] 3D CNN data loader tested on 20 scans (2026-11-23: `src/brain_age/data.py`, 2 mm input
       80 x 96 x 80, flip + shift augmentation on train only; all checks passed)
-- [ ] 3D CNN trained; MAE, RMSE, correlation on validation
+- [x] 3D CNN trained; MAE, RMSE, correlation on validation
+      (2026-11-23: run cnn-1 on Colab, val MAE 3.45, RMSE 4.33, r 0.79; beats ridge 3.79)
 - [ ] Age-bias plot; correction fitted on training set only
 - [ ] Final model chosen on validation, reported once on test
 
