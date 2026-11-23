@@ -7,10 +7,16 @@ paths:
   scan_qc: data/tables/scan_qc_final.csv          # val/test and MCI baseline scans
   mci_cohort_table: data/tables/mci_cohort.csv
   freesurfer_table: data/raw/tables/UCSFFSX7_13Nov2026.csv
+  preprocessing_config: configs/preprocessing.yaml
+  features_dir: data/features                     # local only
   out_dir: outputs/brain_age
+features:                  # src/brain_age/extract_features.py (decision 22)
+  downsample_factor: 4     # 1 mm -> 4 mm by block averaging
+  mask_min_fraction: 0.5   # 4 mm block is brain if >= half its voxels are in the template mask
 baseline:
   model: svr               # svr or ridge
-  features: regional_volumes
+  features: voxels_4mm     # PCA fitted on training folds only, inside the pipeline
+  train_scans: all         # all CN training visits; CV folds grouped by subject
 cnn:
   input_downsample_mm: 2.0
   batch_size: 4
