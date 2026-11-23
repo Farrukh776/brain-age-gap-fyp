@@ -47,7 +47,8 @@ Tick items as they are completed. Steps are done in order.
       scans incl. MCI; decision 22)
 - [x] Baseline (SVR / ridge) trained; MAE, RMSE, correlation on validation
       (2026-11-23: ridge, val MAE 3.79, RMSE 4.88, r 0.71; decision 24)
-- [ ] 3D CNN data loader tested on 20 scans
+- [x] 3D CNN data loader tested on 20 scans (2026-11-23: `src/brain_age/data.py`, 2 mm input
+      80 x 96 x 80, flip + shift augmentation on train only; all checks passed)
 - [ ] 3D CNN trained; MAE, RMSE, correlation on validation
 - [ ] Age-bias plot; correction fitted on training set only
 - [ ] Final model chosen on validation, reported once on test

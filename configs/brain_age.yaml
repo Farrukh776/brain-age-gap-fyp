@@ -28,7 +28,8 @@ baseline:
       C: [0.3, 1, 10, 100, 1000]
       epsilon: [0.5, 2.0]
 cnn:
-  input_downsample_mm: 2.0
+  input_downsample_mm: 2.0   # 2 x 2 x 2 block mean -> 80 x 96 x 80 (src/brain_age/data.py)
+  augment_max_shift: 2       # training only: random shift up to 2 voxels + left-right flip
   batch_size: 4
   epochs: 100
   lr: 0.0001
