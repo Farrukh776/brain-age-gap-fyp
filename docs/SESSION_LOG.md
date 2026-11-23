@@ -24,7 +24,7 @@ correction (fitted on training data only), then choosing the final model on vali
 - pip on Colab warns about pandas 3 vs Colab's own packages; harmless (same pandas as the laptop).
 
 **Next (session 9)**
-1. Download `fyp-adni-private/cnn/cnn-1/` from Drive into `outputsrain_age\cnn\` on the laptop.
+1. Download `fyp-adni-private/cnn/cnn-1/` from Drive into `outputs/brain_age/cnn/` on the laptop.
 2. Age-bias plot for ridge and CNN on validation.
 3. Decide how to fit the CNN bias correction on training data: the CNN fits its own training
    scans far better than new ones (train MAE 1.5 vs val 3.45), so it needs out-of-fold training
