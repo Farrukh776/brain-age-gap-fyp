@@ -4,6 +4,13 @@ Run from the repo root (lab GPU):    python -m src.brain_age.train_cnn --run cnn
 Continue a stopped run:             python -m src.brain_age.train_cnn --run cnn-1 --resume
 Smoke test (laptop CPU, minutes):   python -m src.brain_age.train_cnn --run smoke --smoke
 With the 2 mm cache (lab GPU):      add --cache-dir <folder>  (see src/brain_age/cache.py)
+One cross-validation fold (0-4):    python -m src.brain_age.train_cnn --run cnn-cv --fold 0
+
+--fold k (decision 30): the training scans are split into the same 5 subject-grouped folds as
+the ridge baseline (GroupKFold, shuffle, seed 42); the model trains on the other 4 folds,
+early-stops on CN validation like cnn-1, and predicts fold k, which it never saw. The five
+fold runs give out-of-fold training predictions (for the age-bias correction, fitted on
+training data only) and five models to average. Output goes to cnn/<run>/fold<k>/.
 
 Data: src/brain_age/data.py (all CN training visits with flip + shift augmentation;
 CN validation baselines without augmentation). The test set is not loaded.
@@ -17,9 +24,11 @@ Writes (local only, outputs/brain_age/cnn/<run>/):
   best.pt / last.pt    model weights (best epoch) / full state for --resume
   val_predictions.csv  validation predictions of the best epoch
   metrics.json         settings and validation metrics of the best epoch
+  oof_predictions.csv  (--fold only) predictions for the held-out training fold
 Prints aggregate numbers only.
 """
 import argparse
+import hashlib
 import json
 import random
 import time
@@ -29,6 +38,7 @@ import numpy as np
 import pandas as pd
 import torch
 import yaml
+from sklearn.model_selection import GroupKFold
 from torch import nn
 
 from src.brain_age.cnn import BrainAgeCNN, count_weights
@@ -64,6 +74,8 @@ def main() -> None:
     parser.add_argument("--workers", type=int, default=2)
     parser.add_argument("--cache-dir", help="2 mm cache from src.brain_age.cache "
                         "(overrides cnn.cache_dir; on the lab GPU run 'cache check' first)")
+    parser.add_argument("--fold", type=int, help="0 to 4: train on the other training folds and "
+                        "predict this one (out-of-fold predictions, decision 30)")
     args = parser.parse_args()
 
     cfg = yaml.safe_load(open(args.config))
@@ -78,9 +90,24 @@ def main() -> None:
     train = cn[cn["split"] == "train"]
     val = cn[cn["split"] == "val"]
     epochs = ccfg["epochs"]
+    held = None
+    if args.fold is not None:
+        n_folds = cfg["baseline"]["cv_folds"]
+        if not 0 <= args.fold < n_folds:
+            raise SystemExit(f"--fold must be 0 to {n_folds - 1}")
+        cv = GroupKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+        tr_idx, te_idx = list(cv.split(train, groups=train["RID"]))[args.fold]
+        train, held = train.iloc[tr_idx], train.iloc[te_idx]
+        if set(train["RID"]) & set(held["RID"]):
+            raise SystemExit("a subject is in both the training folds and the held-out fold")
+        # Short fingerprint of the held-out scans: the same on every machine if folds match
+        tag = hashlib.sha256(",".join(sorted(held["image_id"].astype(str))).encode()).hexdigest()
+        print(f"Fold {args.fold} of {n_folds}: train {len(train)} scans, held out {len(held)} "
+              f"scans ({held['RID'].nunique()} subjects), fingerprint {tag[:12]}")
     if args.smoke:
         train = train.sample(12, random_state=seed)
         val = val.head(8)
+        held = held.head(8) if held is not None else None
         epochs = 2
     if set(train["RID"]) & set(val["RID"]):
         raise SystemExit("a subject is in both train and validation")
@@ -104,6 +131,8 @@ def main() -> None:
     loss_fn = nn.L1Loss()
 
     out = Path(cfg["paths"]["out_dir"]) / "cnn" / args.run
+    if args.fold is not None:
+        out = out / f"fold{args.fold}"
     start, best_mae, bad, history = 1, float("inf"), 0, []
     if args.resume:
         state = torch.load(out / "last.pt", map_location=device, weights_only=False)
@@ -173,11 +202,21 @@ def main() -> None:
     best_epoch = int(pd.DataFrame(history)["val_mae"].idxmin()) + 1
     val[["image_id", "RID", "age"]].assign(pred_cnn=best_pred).to_csv(
         out / "val_predictions.csv", index=False)
-    json.dump({"run": args.run, "seed": seed, "device": str(device), "smoke": args.smoke,
-               "best_epoch": best_epoch, "epochs_run": len(history),
-               "target_mean": mean, "target_sd": sd, "cnn_config": ccfg,
-               "n_weights": count_weights(model), "val": m},
-              open(out / "metrics.json", "w"), indent=2)
+    result = {"run": args.run, "fold": args.fold, "seed": seed, "device": str(device),
+              "smoke": args.smoke, "best_epoch": best_epoch, "epochs_run": len(history),
+              "target_mean": mean, "target_sd": sd, "cnn_config": ccfg,
+              "n_weights": count_weights(model), "val": m}
+    if held is not None:
+        ds_held = BrainAgeDataset(held, prep["paths"]["out_dir"], factor, augment=False,
+                                  cache_dir=cache)
+        pred_held = predict(model, make_loader(ds_held, bs, False, args.workers, seed),
+                            device, mean, sd)
+        held[["image_id", "RID", "age"]].assign(pred_cnn=pred_held, fold=args.fold).to_csv(
+            out / "oof_predictions.csv", index=False)
+        result["held_out"] = mh = metrics(held["age"].to_numpy(), pred_held)
+        print(f"Held-out fold {args.fold}: n={mh['n']} MAE {mh['mae']:.2f}  "
+              f"r {mh['pearson_r']:.3f}  gap-vs-age slope {mh['gap_vs_age_slope']:+.2f}")
+    json.dump(result, open(out / "metrics.json", "w"), indent=2)
     print(f"\nBest epoch {best_epoch}: val n={m['n']} MAE {m['mae']:.2f}  RMSE {m['rmse']:.2f}  "
           f"r {m['pearson_r']:.3f}  mean gap {m['mean_gap']:+.2f}  "
           f"gap-vs-age slope {m['gap_vs_age_slope']:+.2f}")

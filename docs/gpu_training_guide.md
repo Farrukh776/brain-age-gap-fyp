@@ -98,6 +98,35 @@ when the university account gets "failed to assign a backend".
    Drive, empty its trash, remove the share from the university folder, and delete the Colab
    notebook's outputs (Edit > Clear all outputs).
 
+## 2b. Five cross-validation folds for the bias correction (decision 30)
+
+Same notebook setup (cells 1 to 3; then a smoke test of one fold). Then this one cell trains
+folds 0 to 4 one after another (about 25 to 35 minutes each). It skips finished folds and
+resumes a half-done one, so after a disconnect just run cells 1 to 3 and this cell again.
+
+```
+# Smoke test of the fold code (about a minute), then remove it
+!python -m src.brain_age.train_cnn --run cv-smoke --fold 0 --smoke --workers 2 --cache-dir /content/cache
+!rm -r outputs/brain_age/cnn/cv-smoke
+```
+
+```
+%%bash
+for k in 0 1 2 3 4; do
+  d=outputs/brain_age/cnn/cnn-cv/fold$k
+  if [ -f $d/oof_predictions.csv ]; then echo "fold $k already done"; continue; fi
+  if [ -f $d/last.pt ]; then extra=--resume; else extra=; fi
+  python -m src.brain_age.train_cnn --run cnn-cv --fold $k --workers 2 --cache-dir /content/cache $extra || exit 1
+done
+```
+
+Each fold first prints `Fold k of 5 ... fingerprint ...`. The fingerprints must be, in order:
+`3721a3503aae`, `8047490d8bd6`, `bbf6f03700b1`, `ea9f919589fc`, `3967c3e977b2` (computed on the
+laptop; if one differs, stop and report it). Each fold ends with a `Held-out fold k` line.
+Results: `fyp-adni-private/cnn/cnn-cv/fold0` to `fold4`; download the whole `cnn-cv` folder into
+`outputs\brain_age\cnn\`. If the free GPU time runs out part-way, continue later (or from
+another approved account): finished folds are kept.
+
 ## 3. Back on the laptop
 
 Put the `cnn-1` folder in `outputs\brain_age\cnn\`, log the run in `experiment_log.md` and
