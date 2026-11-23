@@ -48,20 +48,33 @@ class BrainAgeDataset(Dataset):
     """Returns (image [1, 80, 96, 80] float32, age float32, row number in the table)."""
 
     def __init__(self, table: pd.DataFrame, processed_dir: str, factor: int = 2,
-                 augment: bool = False, max_shift: int = 2):
+                 augment: bool = False, max_shift: int = 2, cache_dir: str | None = None):
         self.table = table.reset_index(drop=True)
         self.dir = Path(processed_dir)
         self.factor = factor
         self.augment = augment
         self.max_shift = max_shift
+        # Optional cache of the shrunk arrays (one .npy per scan, written on first read)
+        self.cache = Path(cache_dir) / f"{factor}mm" if cache_dir else None
+        if self.cache:
+            self.cache.mkdir(parents=True, exist_ok=True)
 
     def __len__(self) -> int:
         return len(self.table)
 
     def load(self, i: int) -> np.ndarray:
-        path = self.dir / f"{self.table.at[i, 'image_id']}.nii.gz"
+        image_id = self.table.at[i, "image_id"]
+        cached = self.cache / f"{image_id}.npy" if self.cache else None
+        if cached and cached.exists():
+            return np.load(cached)
+        path = self.dir / f"{image_id}.nii.gz"
         array = sitk.GetArrayFromImage(sitk.ReadImage(str(path), sitk.sitkFloat32))  # z, y, x
-        return block_mean(array, self.factor).astype(np.float32)
+        small = block_mean(array, self.factor).astype(np.float32)
+        if cached:
+            tmp = cached.with_suffix(".tmp.npy")  # write then rename: no half-written files
+            np.save(tmp, small)
+            tmp.replace(cached)
+        return small
 
     def augment_image(self, image: np.ndarray, rng: np.random.Generator) -> np.ndarray:
         if rng.random() < 0.5:

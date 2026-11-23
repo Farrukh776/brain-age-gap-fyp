@@ -30,6 +30,10 @@ baseline:
 cnn:
   input_downsample_mm: 2.0   # 2 x 2 x 2 block mean -> 80 x 96 x 80 (src/brain_age/data.py)
   augment_max_shift: 2       # training only: random shift up to 2 voxels + left-right flip
+  cache_dir: null            # e.g. a folder on a large disk: 2 mm arrays saved once (~6 GB)
+  dropout: 0.5               # src/brain_age/cnn.py, before the last layer
+  weight_decay: 0.0001       # AdamW
+  lr_patience: 5             # halve lr after this many epochs without val improvement
   batch_size: 4
   epochs: 100
   lr: 0.0001

@@ -8,7 +8,8 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 ## 2026-11-23 (Session 7)
 
 **Current step:** 6 (brain-age model). Features extracted, SVR / ridge baseline trained, 3D CNN
-data loader tested. Next is the 3D CNN itself.
+data loader and training script built and tested on the laptop CPU. Next is the full CNN
+training run, which needs the lab GPU.
 
 **Done**
 - Decision 22: baseline features are 4 mm voxels (4 x 4 x 4 block means of each preprocessed
@@ -34,14 +35,24 @@ data loader tested. Next is the 3D CNN itself.
 - Found while testing: 3 MCI scans (one per split) replaced by another T1 of the same session
   (decision 17) were missing from the age lookup; they now take the age of the image they
   replaced. CN scans were not affected.
+- New `src/brain_age/cnn.py` (compact 3D CNN, 1,176,721 weights) and `src/brain_age/train_cnn.py`
+  (L1 loss, AdamW, lr halving and early stopping on validation MAE, best epoch kept, resume from
+  `last.pt`, `--smoke` test mode). Decision 25. Optional 2 mm cache in `data.py`
+  (`cnn.cache_dir`, off by default).
+- Smoke tests on the laptop CPU (12 train / 8 val scans, 2 epochs): runs end to end; `--resume`
+  of a finished run gives the same result; runs with and without the cache give identical
+  numbers (reproducible with seed 42). Test outputs deleted. On the CPU about 0.6 s per scan per
+  epoch, so a full run (up to 100 epochs x 1,755 scans) is not practical on the laptop.
 
 **Next (session 8)**
 1. Supervisor review of `cohort_definition.md` (still pending).
 2. Free space on C: (outside the project) before larger runs.
-3. Step 6: define the compact 3D CNN and a training script (L1 loss, early stopping on
-   validation MAE, seed 42); run one short epoch on the laptop CPU to test it end to end.
-4. Confirm lab GPU access and copy the processed scans there (re-run `verify_processed.py`).
-   Consider caching the 2 mm arrays (about 6 GB for all scans) so loading does not slow the GPU.
+3. Confirm lab GPU access (GPU model, memory, booking); set up the `fyp` env there with the CUDA
+   build of PyTorch; copy the processed scans and re-run `verify_processed.py` (decision 14:
+   no personal cloud).
+4. On the GPU: set `cnn.cache_dir`, run `train_cnn --smoke`, then the full run `--run cnn-1`.
+   Stop it after a few epochs once and check `--resume` continues correctly.
+5. Log the CNN run in `experiment_log.md` and compare with ridge (val MAE 3.79).
 
 **Open questions**
 - SVR with an RBF kernel did much worse than ridge; a linear kernel or tuned gamma was not
