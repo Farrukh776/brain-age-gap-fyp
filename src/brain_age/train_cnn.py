@@ -3,6 +3,7 @@
 Run from the repo root (lab GPU):    python -m src.brain_age.train_cnn --run cnn-1
 Continue a stopped run:             python -m src.brain_age.train_cnn --run cnn-1 --resume
 Smoke test (laptop CPU, minutes):   python -m src.brain_age.train_cnn --run smoke --smoke
+With the 2 mm cache (lab GPU):      add --cache-dir <folder>  (see src/brain_age/cache.py)
 
 Data: src/brain_age/data.py (all CN training visits with flip + shift augmentation;
 CN validation baselines without augmentation). The test set is not loaded.
@@ -61,6 +62,8 @@ def main() -> None:
     parser.add_argument("--smoke", action="store_true",
                         help="12 training and 8 validation scans, 2 epochs (tests the code)")
     parser.add_argument("--workers", type=int, default=2)
+    parser.add_argument("--cache-dir", help="2 mm cache from src.brain_age.cache "
+                        "(overrides cnn.cache_dir; on the lab GPU run 'cache check' first)")
     args = parser.parse_args()
 
     cfg = yaml.safe_load(open(args.config))
@@ -84,7 +87,9 @@ def main() -> None:
 
     mean, sd = float(train["age"].mean()), float(train["age"].std())
     factor = int(ccfg["input_downsample_mm"])
-    cache = ccfg.get("cache_dir")
+    cache = args.cache_dir or ccfg.get("cache_dir")
+    if cache:
+        ccfg["cache_dir"] = cache  # recorded in metrics.json
     ds_train = BrainAgeDataset(train, prep["paths"]["out_dir"], factor, augment=True,
                                max_shift=ccfg["augment_max_shift"], cache_dir=cache)
     ds_val = BrainAgeDataset(val, prep["paths"]["out_dir"], factor, augment=False,

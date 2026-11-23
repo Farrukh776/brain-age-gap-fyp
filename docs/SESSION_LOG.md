@@ -43,15 +43,20 @@ training run, which needs the lab GPU.
   of a finished run gives the same result; runs with and without the cache give identical
   numbers (reproducible with seed 42). Test outputs deleted. On the CPU about 0.6 s per scan per
   epoch, so a full run (up to 100 epochs x 1,755 scans) is not practical on the laptop.
+- Colab considered and not used (ADNI agreement, decision 14). Lab GPU chosen; the laptop
+  overnight (about 8 to 15 h per run, resumable) is the fallback if the lab is delayed.
+- New `src/brain_age/cache.py` (decision 26): `build` saves the 2 mm arrays of all 2,489 scans
+  to `D:\fyp-data\cache` with a SHA-256 manifest (arrays + 6 tables); `check` verifies a copy.
+  Tested: a damaged copy (file cut short, one byte changed, one file deleted) is caught.
+  `train_cnn` takes `--cache-dir`. Lab steps written in `docs/lab_gpu_guide.md`.
+- Full cache built in about 4 minutes: 2,489 arrays + 6 tables, 6.1 GB; `check` passed.
 
 **Next (session 8)**
 1. Supervisor review of `cohort_definition.md` (still pending).
 2. Free space on C: (outside the project) before larger runs.
-3. Confirm lab GPU access (GPU model, memory, booking); set up the `fyp` env there with the CUDA
-   build of PyTorch; copy the processed scans and re-run `verify_processed.py` (decision 14:
-   no personal cloud).
-4. On the GPU: set `cnn.cache_dir`, run `train_cnn --smoke`, then the full run `--run cnn-1`.
-   Stop it after a few epochs once and check `--resume` continues correctly.
+3. Confirm lab GPU access (questions in `docs/lab_gpu_guide.md` section 1).
+4. Follow `docs/lab_gpu_guide.md`: copy cache + tables, `cache check`, smoke test, full run
+   `--run cnn-1`; stop it once after a few epochs and check `--resume` continues correctly.
 5. Log the CNN run in `experiment_log.md` and compare with ridge (val MAE 3.79).
 
 **Open questions**
