@@ -110,7 +110,9 @@ def main() -> None:
         model.load_state_dict(state["model"])
         opt.load_state_dict(state["opt"])
         sched.load_state_dict(state["sched"])
-        torch.set_rng_state(state["rng"])
+        torch.set_rng_state(state["rng"].cpu())  # map_location moved it to the GPU
+        if "cuda_rng" in state and torch.cuda.is_available():
+            torch.cuda.set_rng_state_all([r.cpu() for r in state["cuda_rng"]])
         start, best_mae, bad = state["epoch"] + 1, state["best_mae"], state["bad"]
         history = pd.read_csv(out / "history.csv").to_dict("records")
         print(f"Resuming {args.run} at epoch {start} (best val MAE {best_mae:.2f})")
@@ -156,6 +158,7 @@ def main() -> None:
         pd.DataFrame(history).to_csv(out / "history.csv", index=False)
         torch.save({"model": model.state_dict(), "opt": opt.state_dict(),
                     "sched": sched.state_dict(), "rng": torch.get_rng_state(),
+                    "cuda_rng": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else [],
                     "epoch": epoch, "best_mae": best_mae, "bad": bad}, out / "last.pt")
         print(f"epoch {epoch:3d}  train MAE {abs_sum / n:5.2f}  val MAE {val_mae:5.2f}"
               f"{' *' if improved else '  '}  lr {lr:.1e}  {time.time() - t0:5.0f} s")
