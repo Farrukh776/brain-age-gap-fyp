@@ -9,7 +9,7 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 **Current step:** 6 (brain-age model). Features extracted, SVR / ridge baseline trained, 3D CNN
 data loader and training script built and tested on the laptop CPU. Next is the full CNN
-training run, which needs the lab GPU.
+training run on Google Colab (university account), with the lab GPU as backup.
 
 **Done**
 - Decision 22: baseline features are 4 mm voxels (4 x 4 x 4 block means of each preprocessed
@@ -43,21 +43,29 @@ training run, which needs the lab GPU.
   of a finished run gives the same result; runs with and without the cache give identical
   numbers (reproducible with seed 42). Test outputs deleted. On the CPU about 0.6 s per scan per
   epoch, so a full run (up to 100 epochs x 1,755 scans) is not practical on the laptop.
-- Colab considered and not used (ADNI agreement, decision 14). Lab GPU chosen; the laptop
-  overnight (about 8 to 15 h per run, resumable) is the fallback if the lab is delayed.
+- GPU options discussed. The supervisor approved the university Google Drive (decision 27) and
+  then Colab with the university account (decision 28). Colab is the main route, the lab GPU
+  the backup, the laptop overnight (about 8 to 15 h per run, resumable) the last resort.
 - New `src/brain_age/cache.py` (decision 26): `build` saves the 2 mm arrays of all 2,489 scans
   to `D:\fyp-data\cache` with a SHA-256 manifest (arrays + 6 tables); `check` verifies a copy.
   Tested: a damaged copy (file cut short, one byte changed, one file deleted) is caught.
-  `train_cnn` takes `--cache-dir`. Lab steps written in `docs/lab_gpu_guide.md`.
+  `train_cnn` takes `--cache-dir`. Lab steps written in `docs/gpu_training_guide.md`.
 - Full cache built in about 4 minutes: 2,489 arrays + 6 tables, 6.1 GB; `check` passed.
+- `cache.py` gained `pack` (one zip of cache + tables) and `unpack` (extracts, then runs check).
+  Full round trip tested: zip 4.42 GB (from 6.12 GB) in 6 minutes; unpack + check into a test
+  folder in 2 minutes, all files match; test folder deleted. Zip at
+  `D:\fyp-data\upload\fyp_cache_2mm.zip` (local, not yet uploaded).
+- Guide renamed `docs/gpu_training_guide.md`: Colab main route (5 notebook cells, results saved
+  straight to the private Drive folder so a disconnect loses at most one epoch), lab as backup.
 
 **Next (session 8)**
 1. Supervisor review of `cohort_definition.md` (still pending).
 2. Free space on C: (outside the project) before larger runs.
-3. Confirm lab GPU access (questions in `docs/lab_gpu_guide.md` section 1).
-4. Follow `docs/lab_gpu_guide.md`: copy cache + tables, `cache check`, smoke test, full run
-   `--run cnn-1`; stop it once after a few epochs and check `--resume` continues correctly.
-5. Log the CNN run in `experiment_log.md` and compare with ridge (val MAE 3.79).
+3. Upload the zip to the university Drive folder `fyp-adni-private` (shared only with team
+   members who have ADNI access), then follow `docs/gpu_training_guide.md` section 2: smoke
+   test, full run `--run cnn-1`, stop once after a few epochs and check `--resume`.
+4. Log the CNN run in `experiment_log.md` and compare with ridge (val MAE 3.79).
+5. The Colab cells were written but not run yet; fix the guide if anything differs on Colab.
 
 **Open questions**
 - SVR with an RBF kernel did much worse than ridge; a linear kernel or tuned gamma was not
