@@ -7,8 +7,8 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ## 2026-11-23 (Session 7)
 
-**Current step:** 6 (brain-age model). Features extracted and the SVR / ridge baseline trained.
-Next is the 3D CNN data loader.
+**Current step:** 6 (brain-age model). Features extracted, SVR / ridge baseline trained, 3D CNN
+data loader tested. Next is the 3D CNN itself.
 
 **Done**
 - Decision 22: baseline features are 4 mm voxels (4 x 4 x 4 block means of each preprocessed
@@ -25,12 +25,23 @@ Next is the 3D CNN data loader.
   bias correction is a later roadmap item. Out-of-fold training predictions are saved for it.
 - C: ran out of space while saving models. `data/features` and `outputs/brain_age` moved to
   `D:\fyp-data` with folder links (decision 23). C: has only about 0.2 GB free.
+- New `src/brain_age/data.py`: scan table with ages for all 2,489 scans and a PyTorch dataset
+  (1 mm -> 2 mm block mean, 80 x 96 x 80; training-only left-right flip and shift up to 2
+  voxels). Tested on 20 training + 5 validation scans: shapes, values, ages, each scan once per
+  epoch, validation unchanged between reads; picture checked by eye (`loader_check.png`, local).
+  Loading takes about 0.6 s per scan on the laptop (2 workers), so one epoch would take about
+  17 minutes from the .nii.gz files.
+- Found while testing: 3 MCI scans (one per split) replaced by another T1 of the same session
+  (decision 17) were missing from the age lookup; they now take the age of the image they
+  replaced. CN scans were not affected.
 
 **Next (session 8)**
 1. Supervisor review of `cohort_definition.md` (still pending).
 2. Free space on C: (outside the project) before larger runs.
-3. Step 6: 3D CNN data loader tested on 20 scans (2 mm input, reads the same scan tables).
+3. Step 6: define the compact 3D CNN and a training script (L1 loss, early stopping on
+   validation MAE, seed 42); run one short epoch on the laptop CPU to test it end to end.
 4. Confirm lab GPU access and copy the processed scans there (re-run `verify_processed.py`).
+   Consider caching the 2 mm arrays (about 6 GB for all scans) so loading does not slow the GPU.
 
 **Open questions**
 - SVR with an RBF kernel did much worse than ridge; a linear kernel or tuned gamma was not
