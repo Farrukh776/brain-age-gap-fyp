@@ -5,7 +5,8 @@ Only the 2 mm cache (about 6 GB) and the tables are moved, not the 30 GB of proc
 (decision 26), as one zip through the university Google Drive (decision 27). The supervisor
 approved Google Colab with the university account (decision 28); the lab GPU is the backup.
 
-Rules (ADNI Data Use Agreement): use only the **university** Google account, never a personal
+Rules (ADNI Data Use Agreement): use only the **university** Google account (or the one personal
+account approved in decision 29), never any other personal
 one; the Drive folder is shared only with team members who have ADNI access; never
 "anyone with the link"; delete the data when the CNN work is finished.
 
@@ -82,6 +83,20 @@ Upload:
 
 If a teammate runs it from their account: the shared folder is under "Shared with me";
 right-click it > Organize > Add shortcut > My Drive, so the path above works.
+
+**Farrukh's personal Gmail (decision 29, supervisor-approved for this account only).** Use it
+when the university account gets "failed to assign a backend".
+1. University account, drive.google.com: right-click `fyp-adni-private` > Share > add the
+   personal Gmail as **Editor** > Send. (If Drive says sharing outside the university is not
+   allowed: download the zip and upload it into a private `fyp-adni-private` folder in the
+   personal Drive instead, then skip step 2.)
+2. Personal account, drive.google.com > Shared with me > right-click `fyp-adni-private` >
+   Organize > Add shortcut > My Drive.
+3. Personal account in Colab (check the account icon top right), T4 GPU, then cells 1 to 5
+   unchanged; in cell 1 allow Drive access for the personal account.
+4. Clean-up when the CNN work is final: delete the results and any zip copy from the personal
+   Drive, empty its trash, remove the share from the university folder, and delete the Colab
+   notebook's outputs (Edit > Clear all outputs).
 
 ## 3. Back on the laptop
 
