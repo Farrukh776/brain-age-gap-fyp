@@ -5,6 +5,39 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ---
 
+## 2026-11-23 (Session 7)
+
+**Current step:** 6 (brain-age model). Features extracted and the SVR / ridge baseline trained.
+Next is the 3D CNN data loader.
+
+**Done**
+- Decision 22: baseline features are 4 mm voxels (4 x 4 x 4 block means of each preprocessed
+  scan, 29,520 blocks inside the template brain mask). New `src/brain_age/extract_features.py`
+  writes one matrix for all 2,489 scans (CN train 1,755 / val 140 / test 141, MCI 316 / 68 / 69)
+  in about 3 minutes. No statistics are learned at this stage.
+- New `src/brain_age/train_baseline.py`: standardise -> PCA -> ridge or SVR (RBF), tuned with
+  5-fold CV on all 1,755 training scans, folds grouped by subject; PCA fitted inside each fold.
+  Test set not loaded.
+- Results (validation, 140 CN baselines): ridge MAE 3.79, RMSE 4.88, r 0.71 (CV MAE 4.04);
+  SVR MAE 4.25 (CV 4.70); always guessing the mean training age gives MAE 6.15. Ridge was best
+  at the largest PCA size, so the grid was extended to 1,200 components; it flattened (decision 24).
+- Gap-vs-age slope about -0.47: old subjects predicted too young, young too old. Expected;
+  bias correction is a later roadmap item. Out-of-fold training predictions are saved for it.
+- C: ran out of space while saving models. `data/features` and `outputs/brain_age` moved to
+  `D:\fyp-data` with folder links (decision 23). C: has only about 0.2 GB free.
+
+**Next (session 8)**
+1. Supervisor review of `cohort_definition.md` (still pending).
+2. Free space on C: (outside the project) before larger runs.
+3. Step 6: 3D CNN data loader tested on 20 scans (2 mm input, reads the same scan tables).
+4. Confirm lab GPU access and copy the processed scans there (re-run `verify_processed.py`).
+
+**Open questions**
+- SVR with an RBF kernel did much worse than ridge; a linear kernel or tuned gamma was not
+  tried. Ridge is enough for a baseline, revisit only if the CNN comparison needs it.
+
+---
+
 ## 2026-11-22 (Session 6)
 
 **Current step:** 6 (brain-age model). Preprocessing was re-checked end to end; the data is now

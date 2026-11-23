@@ -45,7 +45,8 @@ Tick items as they are completed. Steps are done in order.
 ## Step 6: Brain-age model
 - [x] Features extracted for CN subjects (2026-11-23: 4 mm voxels, 29,520 per scan, all 2,489
       scans incl. MCI; decision 22)
-- [ ] Baseline (SVR / ridge) trained; MAE, RMSE, correlation on validation
+- [x] Baseline (SVR / ridge) trained; MAE, RMSE, correlation on validation
+      (2026-11-23: ridge, val MAE 3.79, RMSE 4.88, r 0.71; decision 24)
 - [ ] 3D CNN data loader tested on 20 scans
 - [ ] 3D CNN trained; MAE, RMSE, correlation on validation
 - [ ] Age-bias plot; correction fitted on training set only
