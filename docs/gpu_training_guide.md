@@ -127,6 +127,10 @@ in your user folder, internet access, can files stay until the run is done, book
 
 ## If something goes wrong
 
+- Cell 1 prints "ERROR: pip's dependency resolver ... google-colab requires pandas==2.2.3, but
+  you have pandas 3.x": expected and harmless. nilearn pulls in pandas 3, the same version the
+  code was tested with on the laptop; only Colab's own extras want the older one. Continue.
+
 - `check` reports missing or changed files: download / copy the zip again and unpack again.
 - `CUDA out of memory`: close other GPU programs; if still failing, note it and ask before
   changing the batch size (it is part of decision 25).
