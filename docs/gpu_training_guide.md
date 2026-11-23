@@ -116,9 +116,13 @@ for k in 0 1 2 3 4; do
   d=outputs/brain_age/cnn/cnn-cv/fold$k
   if [ -f $d/oof_predictions.csv ]; then echo "fold $k already done"; continue; fi
   if [ -f $d/last.pt ]; then extra=--resume; else extra=; fi
-  python -m src.brain_age.train_cnn --run cnn-cv --fold $k --workers 2 --cache-dir /content/cache $extra || exit 1
+  python -u -m src.brain_age.train_cnn --run cnn-cv --fold $k --workers 2 --cache-dir /content/cache $extra || exit 1
 done
 ```
+
+`-u` matters: inside `%%bash` Python otherwise holds its printed lines back until the fold
+ends, so the cell looks empty for half an hour. Progress can also be seen in Drive:
+`cnn-cv/fold<k>/history.csv` gains one row per epoch.
 
 Each fold first prints `Fold k of 5 ... fingerprint ...`. The fingerprints must be, in order:
 `3721a3503aae`, `8047490d8bd6`, `bbf6f03700b1`, `ea9f919589fc`, `3967c3e977b2` (computed on the
