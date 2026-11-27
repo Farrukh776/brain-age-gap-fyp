@@ -51,3 +51,5 @@ final:
   folds: 5
   correction: outputs/brain_age/bias/correction.json   # key "cnn": gap = a * age + b
   cache_dir: null            # optional 2 mm cache (same arrays as the .nii.gz route)
+  weights_sha256_12: [647b86cca750, bd2e759e215f, 64c993661a4f, 915ef1489393, 2cedcb3229bc]
+  correction_sha256_12: e69546fdb639
