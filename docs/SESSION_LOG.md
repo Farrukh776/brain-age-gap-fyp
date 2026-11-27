@@ -7,6 +7,8 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ## 2026-11-27 (Session 9)
 
+Steps 6 and 7 finished this session.
+
 **Current step:** 7 is complete. Next is step 8 (E1: MRI feature table for the MCI cohort).
 
 **Done**
@@ -26,18 +28,15 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
   out-of-fold training MAE 3.65. `src/brain_age/bias_correction.py`: correction fitted on
   training only brings the validation gap slope from -0.37 to +0.01 (r with age +0.02);
   ridge from -0.47 to -0.01.
-
 - Decision 31: final model frozen and committed (with weight hashes) before the test set was
   used: 5-fold CNN average + training-fitted correction. New `src/brain_age/predict.py` checks
   the hashes, reproduces validation exactly, and runs the test set only once (`--confirm-test`).
 - **CN test set used once (141 subjects):** MAE 3.57 (95% CI 3.10-4.07), RMSE 4.57, r 0.74.
   cnn-1 3.60, ridge 3.83 (comparison only). Corrected BAG on test: slope vs age -0.025,
   r with age -0.05, mean +0.15. The test set must not be used again for the brain-age model.
-
 - Step 7: `predict.py --set mci` on all 453 MCI subjects (one removed at QC earlier). Corrected
   BAG mean +2.52 years (CN test +0.15), slope vs age -0.02. New `src/brain_age/bag_table.py`
   builds the BAG table with labels; checks passed, label counts per split match the cohort.
-
 - Decision 32 (committed before running): BAG test on MCI train + val only (384); MCI test
   subjects wait until E1-E5 are frozen. New `src/brain_age/bag_stats.py`.
 - Result: corrected BAG progressors +4.15 (SD 3.52, n 130) vs stable +1.75 (SD 3.54, n 254);
@@ -46,9 +45,17 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
   (+1.3 years, p 0.085). Association only, not yet prediction; no clinical claims.
 
 **Next (session 10)**
-1. Step 8 (E1): MRI feature table for the MCI cohort; decide which MRI features E1-E5 use
-   (the same for all experiments), then logistic regression + one tree model, 5-fold CV on
-   MCI train.
+1. Step 8 (E1): decide which MRI features E1-E5 use (the same for all experiments; must not be
+   the brain-age prediction itself). `configs/e1.yaml` expects `data/tables/mci_features.csv`.
+   Then logistic regression + one tree model, 5-fold CV on MCI train (316); validation (68) for
+   choices; MCI test (69) only after E1 and E2 are both frozen.
+2. Drive clean-up (decision 29), now that the brain-age model is frozen: first copy the
+   `cnn/cnn-cv` folder into a folder owned by the university account (the frozen weights
+   otherwise live only on D:), then delete everything in the personal account's Drive, empty its
+   trash, remove the personal Gmail from the share, and clear the Colab notebook outputs. Keep the
+   cache zip on the university Drive until the FYP no longer needs retraining.
+3. Back up `D:yp-data\outputsrain_age` (frozen model, correction, BAG table) to the
+   university Drive folder: the hash check in `predict.py` needs these exact files.
 
 **Open questions**
 - After correction the validation BAG averages about -0.5 (CNN) / -0.4 (ridge) years. A constant
