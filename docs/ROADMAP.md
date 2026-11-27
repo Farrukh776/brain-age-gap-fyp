@@ -51,7 +51,9 @@ Tick items as they are completed. Steps are done in order.
       80 x 96 x 80, flip + shift augmentation on train only; all checks passed)
 - [x] 3D CNN trained; MAE, RMSE, correlation on validation
       (2026-11-23: run cnn-1 on Colab, val MAE 3.45, RMSE 4.33, r 0.79; beats ridge 3.79)
-- [ ] Age-bias plot; correction fitted on training set only
+- [x] Age-bias plot; correction fitted on training set only
+      (2026-11-27: linear, on out-of-fold training predictions; 5 fold CNNs; validation gap slope
+      -0.37 -> +0.01; decision 30)
 - [ ] Final model chosen on validation, reported once on test
 
 ## Step 7: BAG computation

@@ -5,6 +5,46 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ---
 
+## 2026-11-27 (Session 9)
+
+**Current step:** 6 (brain-age model). Age-bias correction done. Last item of step 6: choose the
+final model on validation, then report it once on test.
+
+**Done**
+- Honest comparison with published brain-age models (Cole 2017, Peng 2021 SFCN; Gaser 2013 for
+  MCI conversion; Bashyam 2020 on moderately fitting models). Verdict: our MAE is reasonable for
+  654 training subjects and good enough for BAG; no new data.
+- `src/brain_age/bias_plot.py`: age bias before correction. Ridge out-of-fold training slope -0.46
+  and validation -0.47 agree, so a correction fitted on out-of-fold training predictions transfers.
+- Decision 30: linear correction fitted on out-of-fold training predictions only. For the CNN,
+  `train_cnn.py --fold 0..4` (same subject-grouped folds as ridge; fingerprints printed).
+- Colab: 5 fold CNNs (run `cnn-cv`) over several sessions; disconnects were resumed. Checked on
+  the laptop: all folds early-stopped, histories have no gaps or repeated epochs, no NaN, folds
+  match the laptop, every training scan predicted exactly once, held-out subjects never in the
+  fold's training part, and the saved weights reproduce the validation predictions exactly.
+- `%%bash` held Python's output back until each fold ended; the guide now uses `python -u`.
+- Results (validation, 140 CN): 5-fold CNN average MAE 3.42, r 0.79 (cnn-1: 3.45). Pooled
+  out-of-fold training MAE 3.65. `src/brain_age/bias_correction.py`: correction fitted on
+  training only brings the validation gap slope from -0.37 to +0.01 (r with age +0.02);
+  ridge from -0.47 to -0.01.
+
+**Next (session 10)**
+1. Choose the final brain-age model on validation (CNN 5-fold average is the candidate) and
+   freeze it; then predict the CN test set once and report MAE, RMSE, r (uncorrected).
+2. Step 7: brain age for every MCI subject with the frozen model and correction (CPU is enough
+   for prediction: about 450 scans).
+
+**Open questions**
+- After correction the validation BAG averages about -0.5 (CNN) / -0.4 (ridge) years. A constant
+  shift does not change E3/E4 comparisons, but note it in the report.
+- E3 (MRI + BAG, FYP-II): the corrected BAG is computed with chronological age, so it carries age
+  information; consider this when interpreting E3 vs E1.
+- Supervisor review of `cohort_definition.md` still pending.
+- When the CNN work is final: delete ADNI files from the personal Drive, empty its trash, remove
+  the share, clear notebook outputs (decision 29).
+
+---
+
 ## 2026-11-23 (Session 8)
 
 **Current step:** 6 (brain-age model). The 3D CNN is trained. Next is the age-bias plot and
