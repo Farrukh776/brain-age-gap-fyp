@@ -245,7 +245,7 @@ Next is step 6 (brain-age model).
   which are never used. Training set: 657 baseline + 1,110 later = 1,767 scans.
 - `make_download_lists.py --later-visits` wrote `data/tables/later_visit_scans.csv` and 6 lists
   (`download_lists/later_01.txt` to `later_06.txt`, local only). Farrukh started the download
-  on 2026-11-16 (into `D:yp-data
+  on 2026-11-16 (into `D:\fyp-data
 aw\scans`).
 
 **Next (session 5)**
