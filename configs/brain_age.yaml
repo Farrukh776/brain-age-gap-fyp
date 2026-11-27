@@ -43,3 +43,11 @@ bias_correction:
   enabled: true
   fit_on: train            # never val or test
 metrics: [mae, rmse, pearson_r]
+
+# Frozen final brain-age model (decision 31); chosen on validation before the test set was used
+final:
+  model: cnn_ensemble        # average of the 5 fold CNNs
+  cv_run: cnn-cv             # outputs/brain_age/cnn/cnn-cv/fold0..4/best.pt
+  folds: 5
+  correction: outputs/brain_age/bias/correction.json   # key "cnn": gap = a * age + b
+  cache_dir: null            # optional 2 mm cache (same arrays as the .nii.gz route)
