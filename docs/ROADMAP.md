@@ -64,7 +64,9 @@ Tick items as they are completed. Steps are done in order.
       (training-fitted; MCI corrected BAG mean +2.52, CN test +0.15; slope vs age -0.02)
 - [x] BAG table saved (ID, age, predicted age, BAG, label)
       (`src/brain_age/bag_table.py`; local `outputs/brain_age/bag/bag_table.csv`)
-- [ ] BAG distribution: progressors vs stable, with statistical test
+- [x] BAG distribution: progressors vs stable, with statistical test
+      (2026-11-27: MCI train + val, 384; corrected BAG +4.15 vs +1.75, difference +2.40 y
+      [1.65, 3.17], Hedges' g 0.68, Welch p 1e-9; decision 32. Repeat on all 453 after E1-E5)
 
 ## Step 8: E1 (MRI only)
 - [ ] MRI feature table for MCI cohort

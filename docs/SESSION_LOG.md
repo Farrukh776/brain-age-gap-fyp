@@ -7,8 +7,7 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ## 2026-11-27 (Session 9)
 
-**Current step:** 7 (BAG computation). Brain age, correction and BAG table done; next is the
-BAG distribution comparison (progressors vs stable) with a statistical test.
+**Current step:** 7 is complete. Next is step 8 (E1: MRI feature table for the MCI cohort).
 
 **Done**
 - Honest comparison with published brain-age models (Cole 2017, Peng 2021 SFCN; Gaser 2013 for
@@ -39,13 +38,19 @@ BAG distribution comparison (progressors vs stable) with a statistical test.
   BAG mean +2.52 years (CN test +0.15), slope vs age -0.02. New `src/brain_age/bag_table.py`
   builds the BAG table with labels; checks passed, label counts per split match the cohort.
 
+- Decision 32 (committed before running): BAG test on MCI train + val only (384); MCI test
+  subjects wait until E1-E5 are frozen. New `src/brain_age/bag_stats.py`.
+- Result: corrected BAG progressors +4.15 (SD 3.52, n 130) vs stable +1.75 (SD 3.54, n 254);
+  difference +2.40 years [1.65, 3.17], Hedges' g 0.68 [0.46, 0.92], Welch p = 1e-9,
+  Mann-Whitney p = 2e-9. Raw BAG difference smaller (+1.90, g 0.41). Age differs little
+  (+1.3 years, p 0.085). Association only, not yet prediction; no clinical claims.
+
 **Next (session 10)**
-1. Step 7, last item: BAG distribution in progressors vs stable with a statistical test
-   (decide first which MCI split(s) it may use; see open questions).
+1. Step 8 (E1): MRI feature table for the MCI cohort; decide which MRI features E1-E5 use
+   (the same for all experiments), then logistic regression + one tree model, 5-fold CV on
+   MCI train.
 
 **Open questions**
-- BAG progressors-vs-stable test: MCI train only, train + val, or all splits? Using MCI test
-  labels now would touch the progression test set before E1-E5 are frozen.
 - After correction the validation BAG averages about -0.5 (CNN) / -0.4 (ridge) years. A constant
   shift does not change E3/E4 comparisons, but note it in the report.
 - E3 (MRI + BAG, FYP-II): the corrected BAG is computed with chronological age, so it carries age
