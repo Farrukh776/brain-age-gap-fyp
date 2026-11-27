@@ -54,7 +54,8 @@ Tick items as they are completed. Steps are done in order.
 - [x] Age-bias plot; correction fitted on training set only
       (2026-11-27: linear, on out-of-fold training predictions; 5 fold CNNs; validation gap slope
       -0.37 -> +0.01; decision 30)
-- [ ] Final model chosen on validation, reported once on test
+- [x] Final model chosen on validation, reported once on test
+      (2026-11-27: 5-fold CNN average, decision 31; test MAE 3.57, RMSE 4.57, r 0.74)
 
 ## Step 7: BAG computation
 - [ ] Brain age predicted for every MCI subject

@@ -7,8 +7,7 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ## 2026-11-27 (Session 9)
 
-**Current step:** 6 (brain-age model). Age-bias correction done. Last item of step 6: choose the
-final model on validation, then report it once on test.
+**Current step:** 6 is complete. Next is step 7 (BAG computation for MCI subjects).
 
 **Done**
 - Honest comparison with published brain-age models (Cole 2017, Peng 2021 SFCN; Gaser 2013 for
@@ -28,11 +27,16 @@ final model on validation, then report it once on test.
   training only brings the validation gap slope from -0.37 to +0.01 (r with age +0.02);
   ridge from -0.47 to -0.01.
 
+- Decision 31: final model frozen and committed (with weight hashes) before the test set was
+  used: 5-fold CNN average + training-fitted correction. New `src/brain_age/predict.py` checks
+  the hashes, reproduces validation exactly, and runs the test set only once (`--confirm-test`).
+- **CN test set used once (141 subjects):** MAE 3.57 (95% CI 3.10-4.07), RMSE 4.57, r 0.74.
+  cnn-1 3.60, ridge 3.83 (comparison only). Corrected BAG on test: slope vs age -0.025,
+  r with age -0.05, mean +0.15. The test set must not be used again for the brain-age model.
+
 **Next (session 10)**
-1. Choose the final brain-age model on validation (CNN 5-fold average is the candidate) and
-   freeze it; then predict the CN test set once and report MAE, RMSE, r (uncorrected).
-2. Step 7: brain age for every MCI subject with the frozen model and correction (CPU is enough
-   for prediction: about 450 scans).
+1. Step 7: `python -m src.brain_age.predict --set mci` (brain age and corrected BAG for every MCI
+   scan, CPU is enough), then the BAG table (ID, age, predicted age, BAG, label; local only).
 
 **Open questions**
 - After correction the validation BAG averages about -0.5 (CNN) / -0.4 (ridge) years. A constant
