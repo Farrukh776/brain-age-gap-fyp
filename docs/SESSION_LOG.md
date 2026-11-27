@@ -54,7 +54,7 @@ Steps 6 and 7 finished this session.
    otherwise live only on D:), then delete everything in the personal account's Drive, empty its
    trash, remove the personal Gmail from the share, and clear the Colab notebook outputs. Keep the
    cache zip on the university Drive until the FYP no longer needs retraining.
-3. Back up `D:yp-data\outputsrain_age` (frozen model, correction, BAG table) to the
+3. Back up `D:/fyp-data/outputs/brain_age` (frozen model, correction, BAG table) to the
    university Drive folder: the hash check in `predict.py` needs these exact files.
 
 **Open questions**
