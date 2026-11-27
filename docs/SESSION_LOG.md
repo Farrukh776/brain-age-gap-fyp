@@ -7,7 +7,8 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ## 2026-11-27 (Session 9)
 
-**Current step:** 6 is complete. Next is step 7 (BAG computation for MCI subjects).
+**Current step:** 7 (BAG computation). Brain age, correction and BAG table done; next is the
+BAG distribution comparison (progressors vs stable) with a statistical test.
 
 **Done**
 - Honest comparison with published brain-age models (Cole 2017, Peng 2021 SFCN; Gaser 2013 for
@@ -34,11 +35,17 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
   cnn-1 3.60, ridge 3.83 (comparison only). Corrected BAG on test: slope vs age -0.025,
   r with age -0.05, mean +0.15. The test set must not be used again for the brain-age model.
 
+- Step 7: `predict.py --set mci` on all 453 MCI subjects (one removed at QC earlier). Corrected
+  BAG mean +2.52 years (CN test +0.15), slope vs age -0.02. New `src/brain_age/bag_table.py`
+  builds the BAG table with labels; checks passed, label counts per split match the cohort.
+
 **Next (session 10)**
-1. Step 7: `python -m src.brain_age.predict --set mci` (brain age and corrected BAG for every MCI
-   scan, CPU is enough), then the BAG table (ID, age, predicted age, BAG, label; local only).
+1. Step 7, last item: BAG distribution in progressors vs stable with a statistical test
+   (decide first which MCI split(s) it may use; see open questions).
 
 **Open questions**
+- BAG progressors-vs-stable test: MCI train only, train + val, or all splits? Using MCI test
+  labels now would touch the progression test set before E1-E5 are frozen.
 - After correction the validation BAG averages about -0.5 (CNN) / -0.4 (ridge) years. A constant
   shift does not change E3/E4 comparisons, but note it in the report.
 - E3 (MRI + BAG, FYP-II): the corrected BAG is computed with chronological age, so it carries age

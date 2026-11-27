@@ -58,9 +58,12 @@ Tick items as they are completed. Steps are done in order.
       (2026-11-27: 5-fold CNN average, decision 31; test MAE 3.57, RMSE 4.57, r 0.74)
 
 ## Step 7: BAG computation
-- [ ] Brain age predicted for every MCI subject
-- [ ] Bias correction applied
-- [ ] BAG table saved (ID, age, predicted age, BAG, label)
+- [x] Brain age predicted for every MCI subject
+      (2026-11-27: 453 subjects, frozen model of decision 31, `predict.py --set mci`)
+- [x] Bias correction applied
+      (training-fitted; MCI corrected BAG mean +2.52, CN test +0.15; slope vs age -0.02)
+- [x] BAG table saved (ID, age, predicted age, BAG, label)
+      (`src/brain_age/bag_table.py`; local `outputs/brain_age/bag/bag_table.csv`)
 - [ ] BAG distribution: progressors vs stable, with statistical test
 
 ## Step 8: E1 (MRI only)
