@@ -21,4 +21,7 @@ Use validation metrics until a pipeline is frozen. Mark test-set runs clearly.
 ## Progression (E1-E5)
 | Date | Who | Run ID | Exp | Model | Config | Git commit | Split | ROC-AUC | PR-AUC | Sens | Spec | F1 | Notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| | | | | | | | | | | | | | |
+| 2026-11-28 | Farrukh + Claude | e1-1 | E1 | Logistic regression (L2, balanced), 4 mm voxels, PCA 200, C 0.001 | e1.yaml (grid max PCA 200) | 49114f0 | val (68) | 0.678 [0.528, 0.810] | 0.507 | 0.565 | 0.778 | 0.565 | Stratified 5-fold CV on MCI train (316), fold fingerprint a8899313259f: CV AUC 0.630 (SD 0.055). Best at the largest PCA size (AUC rose 0.52 -> 0.63 from 10 to 200), so the grid was extended. Not the final E1 run |
+| 2026-11-28 | Farrukh + Claude | e1-1 | E1 | Random forest (500 trees, balanced), PCA 100, leaf 5, sqrt | as above | 49114f0 | val (68) | 0.523 [0.372, 0.672] | 0.374 | 0.435 | 0.667 | 0.417 | CV AUC 0.606 (SD 0.034) |
+| 2026-11-28 | Farrukh + Claude | e1-2 | E1 | **Logistic regression (L2, balanced), 4 mm voxels, PCA 200, C 10** | e1.yaml | a086e89 | val (68) | **0.684** [0.547, 0.813] | 0.556 [0.381, 0.739] | 0.478 | 0.756 | 0.489 | Same folds (fingerprint a8899313259f). CV AUC 0.634 (SD 0.048); plateau at PCA 200-250 (all C within 0.627-0.634), so the search is settled. Cut-off 0.125 (Youden, out-of-fold training). Chance PR-AUC 0.338. Primary E1 model (decision 33). Lower end of published MRI-only results (about 0.65-0.77) |
+| 2026-11-28 | Farrukh + Claude | e1-2 | E1 | Random forest (500 trees, balanced), PCA 200, leaf 5, sqrt | e1.yaml | a086e89 | val (68) | 0.540 [0.382, 0.694] | 0.418 [0.265, 0.628] | 0.478 | 0.667 | 0.449 | CV AUC 0.614 (SD 0.045); validation close to chance. Secondary model |

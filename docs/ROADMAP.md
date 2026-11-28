@@ -72,8 +72,10 @@ Tick items as they are completed. Steps are done in order.
 - [x] MRI feature table for MCI cohort
       (2026-11-28: 4 mm voxels of decision 22, 453 subjects x 29,520; decision 33;
       `src/features/mci_features.py`, local `data/features/mci_voxels_4mm.npy`)
-- [ ] Logistic regression + one tree model, 5-fold CV on train
-- [ ] Validation metrics logged in `docs/experiment_log.md`
+- [x] Logistic regression + one tree model, 5-fold CV on train
+      (2026-11-28: `src/progression/train.py`, run e1-2; CV AUC LR 0.634, RF 0.614)
+- [x] Validation metrics logged in `docs/experiment_log.md`
+      (LR val ROC-AUC 0.684 [0.547, 0.813], PR-AUC 0.556; RF 0.540)
 
 ## Step 9: E2 (MRI + age)
 - [ ] Same pipeline, splits and seeds as E1, plus age

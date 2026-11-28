@@ -7,7 +7,7 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ## 2026-11-28 (Session 10)
 
-**Current step:** 8 (E1). First item done (MCI feature table). Next is the E1 training script.
+**Current step:** 8 (E1) is complete. Next is step 9 (E2: same pipeline plus age).
 
 **Done**
 - Compared feature options with published MCI-conversion studies (Cuingnet 2011, Moradi 2015,
@@ -22,11 +22,20 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
   `data/features/mci_voxels_4mm.npy` + index. Checks passed: one row per subject, splits match,
   same scans as the BAG table, rows identical to the full voxel matrix, no subject in two splits.
 - `configs/e1.yaml` and `e2.yaml` point to the new file (still identical apart from age).
+- `outputs/progression` is a folder link to `D:/fyp-data/outputs/progression` (C: had 1.6 GB free;
+  same approach as decision 23).
+- New `src/progression/train.py` (one script for E1 and E2; test subjects never loaded). Tuning
+  grid in `e1.yaml` / `e2.yaml` (identical). Run e1-1: logistic regression best at the largest
+  PCA size (200), so 250 was added (about the most a 252-subject CV fold allows). Run e1-2: CV
+  AUC flat at 200-250, search settled.
+- **E1 result (validation, 68):** logistic regression ROC-AUC 0.684 [0.547, 0.813], PR-AUC 0.556
+  (chance 0.338), CV AUC 0.634; random forest 0.540 (CV 0.614). Lower end of published MRI-only
+  results, as expected for affine intensity features. Validation CIs are wide (68 subjects).
 
 **Next (session 11)**
-1. Step 8: write `src/progression/train.py` (reads e1.yaml / e2.yaml; same code for both), add
-   the tuning grid to the configs, run E1 CV on MCI train, check on validation, log in
-   `experiment_log.md`. Do not touch MCI test.
+1. Step 9 (E2): run `python -m src.progression.train --config configs/e2.yaml`; check the fold
+   fingerprint is a8899313259f; log validation metrics. Then freeze E1 and E2 (commit + model
+   hashes, like decision 31) before touching MCI test, and pre-specify the E2 vs E1 test.
 2. Drive clean-up and backup of `D:/fyp-data/outputs/brain_age` (session 9 items 2 and 3, still open).
 
 **Open questions**
