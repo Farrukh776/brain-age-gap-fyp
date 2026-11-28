@@ -83,6 +83,7 @@ Tick items as they are completed. Steps are done in order.
 - [x] Validation metrics logged
       (LR val ROC-AUC 0.685 [0.548, 0.813] vs E1 0.684; RF 0.565 vs 0.540)
 - [ ] Both pipelines frozen, then evaluated on test
+      (frozen 2026-11-28, decision 36, `configs/progression_test.yaml`; test run not done yet)
 - [ ] E2 vs E1 comparison (DeLong or bootstrap) with confidence intervals
 
 ## Step 10: FYP-I deliverables

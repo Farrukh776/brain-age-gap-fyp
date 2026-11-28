@@ -7,7 +7,7 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ## 2026-11-28 (Session 10)
 
-**Current step:** 9 (E2). E2 trained and validated. Next: freeze E1 + E2, pre-specify the E2 vs E1 test, then MCI test.
+**Current step:** 9 (E2). E1 and E2 frozen and the E2 vs E1 test fixed (decision 36). Next: the one MCI test run.
 
 **Done**
 - Compared feature options with published MCI-conversion studies (Cuingnet 2011, Moradi 2015,
@@ -41,12 +41,17 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
   voxel features changes almost nothing on validation; the voxels already carry age information.
 - Bug fixed: the feature class moved to `src/progression/pipeline.py` (saved models could not be
   loaded outside the training script). E1 and E2 rerun: identical results.
+- New `src/progression/evaluate.py` + `configs/progression_test.yaml`: hash check, check that the
+  saved models reproduce their validation predictions, DeLong (checked against scikit-learn and a
+  bootstrap on simulated data), test set only with `--confirm-test` and only once (locks tested).
+  Validation dry run: E2 - E1 AUC +0.001, p 0.83 (code check only).
+- Decision 36: E1 + E2 frozen (model hashes) and the E2 vs E1 test and its interpretation fixed
+  before the MCI test set is used.
 
 **Next (session 11)**
 1. Supervisor: send the message about decision 35 (features) and the pending cohort review.
-2. Step 9: pre-specify the E2 vs E1 test (DeLong on the MCI test set, primary logistic regression;
-   bootstrap CI of the AUC difference) and freeze both pipelines (commit + model file hashes, like
-   decision 31). Only then run the MCI test set once.
+2. Step 9: run the MCI test set once: `python -m src.progression.evaluate --set test --confirm-test`
+   (preferably after the supervisor has answered about decision 35). Log it, tick step 9.
 3. Drive clean-up and backup of `D:/fyp-data/outputs/brain_age` and `outputs/progression`
    (session 9 items 2 and 3, still open).
 

@@ -1,0 +1,20 @@
+# Frozen E1 / E2 pipelines and the pre-specified E2 vs E1 test (decision 36)
+# src/progression/evaluate.py. Models are used exactly as saved by train.py (trained on MCI
+# train only; no refit on train + validation).
+seed: 42
+experiments:
+  E1: configs/e1.yaml
+  E2: configs/e2.yaml
+primary_model: logistic_regression    # decision 33
+secondary_models: [random_forest]
+comparison: [E2, E1]                  # E2 minus E1
+bootstrap_iterations: 5000            # paired, subjects resampled, seed 42
+alpha: 0.05
+out_dir: outputs/progression/test
+frozen:                               # SHA-256 of the model files (decision 36, 2026-11-28)
+  E1:
+    logistic_regression: ae0ef9b1759fb884e4e9c9957e05a35678bf7d1cf36397255024fc45e46def42
+    random_forest: 26a0b2757eb1baf07ee13e5d2ed82e177974a3acd6511450200775ffae5cf319
+  E2:
+    logistic_regression: 0f91a9cff48646cdbaf1cb7194744fcfa98ecd073964e1dadc388412c101d59c
+    random_forest: 07c6112e6764fc562630e91087f9fc01bd774bed2844bcb4c725a86ff1f3d312
