@@ -7,7 +7,8 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ## 2026-11-28 (Session 10)
 
-**Current step:** 9 is complete (FYP-I experiments done). Next is step 10 (FYP-I deliverables).
+**Current step:** 10 (FYP-I deliverables). Report figures done; report will be Word (.docx) on the
+department template, which Farrukh will share. GPU roadmap item closed (Colab).
 
 **Done**
 - Compared feature options with published MCI-conversion studies (Cuingnet 2011, Moradi 2015,
@@ -46,6 +47,9 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
   Validation dry run: E2 - E1 AUC +0.001, p 0.83 (code check only).
 - Decision 36: E1 + E2 frozen (model hashes) and the E2 vs E1 test and its interpretation fixed
   before the MCI test set is used.
+- Step 10 started: `src/report/figures.py` makes the report figures from saved results (cohort
+  flow, brain-age scatter + bias, BAG by group, E1/E2 ROC). Figures with individual points stay in
+  local `outputs/figures`; the flow diagram and ROC curves are also in `docs/figures`.
 - FYP-I audit (steps 1-9): all research steps complete; no ADNI files, subject IDs or models in
   any commit or message; `.gitignore` unchanged. Fixed the technical gaps it found:
   `requirements.txt` pinned to the exact versions used; tests added (`python -m pytest`, 16 tests:
