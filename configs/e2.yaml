@@ -16,8 +16,9 @@ models: [logistic_regression, random_forest]
 cv_folds: 5                # stratified by label, seed 42; identical folds in E1 and E2
 selection_metric: roc_auc  # mean CV ROC-AUC on MCI train (decision 33)
 grid:                      # src/progression/train.py; same grid in E1 and E2
-  # smallest CV training part is about 252 subjects, so 200 components is near the limit
-  pca_components: [10, 20, 50, 100, 200]
+  # run e1-1 (max 200) still improved at 200, so 250 was added: about all components the
+  # smallest CV training part (252 subjects) allows (experiment_log.md)
+  pca_components: [10, 20, 50, 100, 200, 250]
   logistic_regression:     # L2, balanced class weights; inputs standardised
     C: [1.0e-4, 1.0e-3, 1.0e-2, 1.0e-1, 1.0, 10.0]
   random_forest:           # balanced class weights

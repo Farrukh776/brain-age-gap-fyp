@@ -258,7 +258,8 @@ def main() -> None:
 
     oof_out.to_csv(out / "oof_train.csv", index=False)
     val_out.to_csv(out / "val_predictions.csv", index=False)
-    json.dump(metrics, open(out / "metrics.json", "w"), indent=2)
+    with open(out / "metrics.json", "w") as fh:
+        json.dump(metrics, fh, indent=2)
     print(f"\nSaved results to {out} ({time.time() - t0:.0f} s)")
 
 
