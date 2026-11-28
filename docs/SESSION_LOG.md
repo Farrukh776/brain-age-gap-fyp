@@ -7,7 +7,7 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ## 2026-11-28 (Session 10)
 
-**Current step:** 8 (E1) is complete. Next is step 9 (E2: same pipeline plus age).
+**Current step:** 9 (E2). E2 trained and validated. Next: freeze E1 + E2, pre-specify the E2 vs E1 test, then MCI test.
 
 **Done**
 - Compared feature options with published MCI-conversion studies (Cuingnet 2011, Moradi 2015,
@@ -31,12 +31,24 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 - **E1 result (validation, 68):** logistic regression ROC-AUC 0.684 [0.547, 0.813], PR-AUC 0.556
   (chance 0.338), CV AUC 0.634; random forest 0.540 (CV 0.614). Lower end of published MRI-only
   results, as expected for affine intensity features. Validation CIs are wide (68 subjects).
+- Decision 35: keep the decision 33 features for E1-E5; grey-matter maps (CAT12) are a planned
+  FYP-II sensitivity analysis (decided after seeing E1, so no results-driven switch). Peng 2021
+  checked: its elastic-net baseline used the same kind of features (affine T1 voxels + PCA)
+  alongside grey-matter maps; its CNN did equally well on affine T1 and grey-matter maps.
+- **E2 result (validation, 68):** logistic regression ROC-AUC 0.685 [0.548, 0.813] vs E1 0.684;
+  same confusion matrix, probabilities correlate 0.999 with E1, age ranked 152 of 201 inputs.
+  Same subjects and folds as E1 (checked). Random forest 0.565 (E1 0.540). Adding age to the
+  voxel features changes almost nothing on validation; the voxels already carry age information.
+- Bug fixed: the feature class moved to `src/progression/pipeline.py` (saved models could not be
+  loaded outside the training script). E1 and E2 rerun: identical results.
 
 **Next (session 11)**
-1. Step 9 (E2): run `python -m src.progression.train --config configs/e2.yaml`; check the fold
-   fingerprint is a8899313259f; log validation metrics. Then freeze E1 and E2 (commit + model
-   hashes, like decision 31) before touching MCI test, and pre-specify the E2 vs E1 test.
-2. Drive clean-up and backup of `D:/fyp-data/outputs/brain_age` (session 9 items 2 and 3, still open).
+1. Supervisor: send the message about decision 35 (features) and the pending cohort review.
+2. Step 9: pre-specify the E2 vs E1 test (DeLong on the MCI test set, primary logistic regression;
+   bootstrap CI of the AUC difference) and freeze both pipelines (commit + model file hashes, like
+   decision 31). Only then run the MCI test set once.
+3. Drive clean-up and backup of `D:/fyp-data/outputs/brain_age` and `outputs/progression`
+   (session 9 items 2 and 3, still open).
 
 **Open questions**
 - Report limitation: intensity features after affine registration, not grey-matter maps.

@@ -78,8 +78,10 @@ Tick items as they are completed. Steps are done in order.
       (LR val ROC-AUC 0.684 [0.547, 0.813], PR-AUC 0.556; RF 0.540)
 
 ## Step 9: E2 (MRI + age)
-- [ ] Same pipeline, splits and seeds as E1, plus age
-- [ ] Validation metrics logged
+- [x] Same pipeline, splits and seeds as E1, plus age
+      (2026-11-28: run e2-1, same folds as E1, fingerprint a8899313259f)
+- [x] Validation metrics logged
+      (LR val ROC-AUC 0.685 [0.548, 0.813] vs E1 0.684; RF 0.565 vs 0.540)
 - [ ] Both pipelines frozen, then evaluated on test
 - [ ] E2 vs E1 comparison (DeLong or bootstrap) with confidence intervals
 
