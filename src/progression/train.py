@@ -32,13 +32,13 @@ import joblib
 import numpy as np
 import pandas as pd
 import yaml
-from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (average_precision_score, confusion_matrix, f1_score,
                              precision_score, roc_auc_score, roc_curve)
 from sklearn.model_selection import StratifiedKFold
-from sklearn.preprocessing import StandardScaler
+
+from src.progression.pipeline import Features
 
 
 # ---------------------------------------------------------------- data
@@ -72,31 +72,6 @@ def load_data(cfg: dict):
 
 
 # ---------------------------------------------------------------- features
-
-class Features:
-    """Standardise voxels -> PCA (k_max) -> standardise the first k scores [+ standardised age].
-
-    Fitted on training rows only. PCA is fitted once with k_max components and the first k are
-    used, so every k in the grid shares one decomposition (as in the brain-age baseline)."""
-
-    def __init__(self, k_max: int, use_age: bool, seed: int):
-        self.k_max, self.use_age, self.seed = k_max, use_age, seed
-
-    def fit(self, X, age):
-        self.vox = StandardScaler().fit(X)
-        self.pca = PCA(n_components=self.k_max, svd_solver="randomized",
-                       random_state=self.seed).fit(self.vox.transform(X))
-        scores = self.pca.transform(self.vox.transform(X))
-        self.score_scale = StandardScaler().fit(scores)
-        self.age_scale = StandardScaler().fit(age)
-        return self
-
-    def transform(self, X, age, k: int):
-        scores = self.score_scale.transform(self.pca.transform(self.vox.transform(X)))[:, :k]
-        if self.use_age:
-            return np.hstack([scores, self.age_scale.transform(age)])
-        return scores
-
 
 def grid_points(cfg: dict, model: str):
     g = cfg["grid"]
