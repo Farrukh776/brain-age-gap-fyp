@@ -31,8 +31,7 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 - **E1 result (validation, 68):** logistic regression ROC-AUC 0.684 [0.547, 0.813], PR-AUC 0.556
   (chance 0.338), CV AUC 0.634; random forest 0.540 (CV 0.614). Lower end of published MRI-only
   results, as expected for affine intensity features. Validation CIs are wide (68 subjects).
-- Decision 35: keep the decision 33 features for E1-E5; grey-matter maps (CAT12) are a planned
-  FYP-II sensitivity analysis (decided after seeing E1, so no results-driven switch). Peng 2021
+- Decision 35: keep the decision 33 features for E1-E5 (no switch after seeing E1). Peng 2021
   checked: its elastic-net baseline used the same kind of features (affine T1 voxels + PCA)
   alongside grey-matter maps; its CNN did equally well on affine T1 and grey-matter maps.
 - **E2 result (validation, 68):** logistic regression ROC-AUC 0.685 [0.548, 0.813] vs E1 0.684;
@@ -57,6 +56,8 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 **Open questions**
 - Report limitation: intensity features after affine registration, not grey-matter maps.
+- Pending supervisor (Farrukh to ask): should grey-matter maps (e.g. CAT12) be added later as a
+  sensitivity analysis for E1-E5? Not recorded as a plan until confirmed.
 - Session 9 open questions still apply (validation BAG offset, BAG carries age information for
   E3, supervisor review of `cohort_definition.md`, decision 29 clean-up).
 
