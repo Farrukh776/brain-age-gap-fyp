@@ -82,9 +82,10 @@ Tick items as they are completed. Steps are done in order.
       (2026-11-28: run e2-1, same folds as E1, fingerprint a8899313259f)
 - [x] Validation metrics logged
       (LR val ROC-AUC 0.685 [0.548, 0.813] vs E1 0.684; RF 0.565 vs 0.540)
-- [ ] Both pipelines frozen, then evaluated on test
-      (frozen 2026-11-28, decision 36, `configs/progression_test.yaml`; test run not done yet)
-- [ ] E2 vs E1 comparison (DeLong or bootstrap) with confidence intervals
+- [x] Both pipelines frozen, then evaluated on test
+      (frozen 2026-11-28, decision 36; MCI test used once: LR AUC E1 0.576, E2 0.578)
+- [x] E2 vs E1 comparison (DeLong or bootstrap) with confidence intervals
+      (LR difference +0.002, DeLong 95% CI [-0.011, +0.014], p 0.77: no evidence age adds)
 
 ## Step 10: FYP-I deliverables
 - [ ] Report: literature review, cohort flow diagram, preprocessing, brain age, BAG, E1/E2

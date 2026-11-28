@@ -7,7 +7,7 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ## 2026-11-28 (Session 10)
 
-**Current step:** 9 (E2). E1 and E2 frozen and the E2 vs E1 test fixed (decision 36). Next: the one MCI test run.
+**Current step:** 9 is complete (FYP-I experiments done). Next is step 10 (FYP-I deliverables).
 
 **Done**
 - Compared feature options with published MCI-conversion studies (Cuingnet 2011, Moradi 2015,
@@ -46,11 +46,21 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
   Validation dry run: E2 - E1 AUC +0.001, p 0.83 (code check only).
 - Decision 36: E1 + E2 frozen (model hashes) and the E2 vs E1 test and its interpretation fixed
   before the MCI test set is used.
+- Decision 35 trimmed: the grey-matter sensitivity-analysis plan was removed until the supervisor
+  confirms (now an open question).
+- **MCI test set used once (69: 45 stable, 24 progressors).** Logistic regression ROC-AUC E1 0.576
+  [0.426, 0.726], E2 0.578 [0.429, 0.727]. **Primary E2 vs E1: +0.0019, DeLong 95% CI [-0.0106,
+  +0.0144], p 0.77** (bootstrap CI [-0.012, +0.017]): no evidence that age adds beyond the MRI
+  features. Random forest E1 0.617, E2 0.615 (p 0.97). The MRI baseline is weaker on test than on
+  validation (0.684) and its CI includes 0.5; small test set, report as is. The MCI test set must
+  not be used again for E1/E2. A later feature change (e.g. supervisor asks for grey-matter maps)
+  is a separate, additional analysis; these stay the pre-specified results.
 
 **Next (session 11)**
-1. Supervisor: send the message about decision 35 (features) and the pending cohort review.
-2. Step 9: run the MCI test set once: `python -m src.progression.evaluate --set test --confirm-test`
-   (preferably after the supervisor has answered about decision 35). Log it, tick step 9.
+1. Supervisor: send the message (E1/E2 results, features question, pending cohort review).
+2. Step 10: FYP-I report and slides (literature review, cohort flow diagram, preprocessing, brain
+   age, BAG, E1/E2 with the honest test result and limitations), FYP-II plan (E3-E5, XAI,
+   calibration).
 3. Drive clean-up and backup of `D:/fyp-data/outputs/brain_age` and `outputs/progression`
    (session 9 items 2 and 3, still open).
 
