@@ -46,6 +46,13 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
   Validation dry run: E2 - E1 AUC +0.001, p 0.83 (code check only).
 - Decision 36: E1 + E2 frozen (model hashes) and the E2 vs E1 test and its interpretation fixed
   before the MCI test set is used.
+- FYP-I audit (steps 1-9): all research steps complete; no ADNI files, subject IDs or models in
+  any commit or message; `.gitignore` unchanged. Fixed the technical gaps it found:
+  `requirements.txt` pinned to the exact versions used; tests added (`python -m pytest`, 16 tests:
+  E1/E2 config identity, seeds, DeLong, threshold metrics, split overlap, feature/BAG/split match,
+  test-set lock; data tests skip without data; `pytest.ini` keeps pytest out of the scan folders);
+  `src/brain_age/report_metrics.py` adds Spearman for the final brain-age model (val 0.770, test
+  0.724, from saved predictions); README gained a "Reproducing FYP-I" section.
 - Drive clean-up of decision 29 done by Farrukh (reported 2026-11-28): ADNI-derived files are no
   longer in the personal account; data is only in the university Drive folder (and locally on D:).
 - Decision 35 trimmed: the grey-matter sensitivity-analysis plan was removed until the supervisor
@@ -68,6 +75,9 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 **Open questions**
 - Report limitation: intensity features after affine registration, not grey-matter maps.
+- Still open outside the code: supervisor sign-off on `cohort_definition.md`; meeting notes
+  (only the template exists); team items in roadmap steps 1-3; GPU item can be closed via
+  Colab (decisions 28-29) once confirmed; confirm frozen model files are backed up.
 - Pending supervisor (Farrukh to ask): should grey-matter maps (e.g. CAT12) be added later as a
   sensitivity analysis for E1-E5? Not recorded as a plan until confirmed.
 - Session 9 open questions still apply (validation BAG offset, BAG carries age information for

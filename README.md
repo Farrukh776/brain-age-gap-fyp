@@ -47,6 +47,59 @@ Data comes from ADNI and is **not** in this repository. Each member downloads it
 ADNI account and places it under `data/` (see [data/README.md](data/README.md)).
 Never commit scans, clinical tables, or anything containing subject IDs.
 
+## Reproducing FYP-I
+
+Run every command from the repo root with the `fyp` environment active. Settings live in
+`configs/*.yaml`; the decision numbers refer to [docs/decisions.md](docs/decisions.md). Steps that
+use a test set are run **once**, after the pipeline is frozen; the scripts refuse a second run.
+
+1. **Cohorts and splits** (step 4; `docs/cohort_definition.md`)
+   ```
+   python -m src.cohort.inspect_tables
+   python -m src.cohort.build_cohorts
+   python -m src.cohort.make_splits
+   ```
+2. **MRI preprocessing and QC** (step 5; `docs/preprocessing_log.md`, decisions 13-21)
+   ```
+   python -m src.preprocessing.make_download_lists      # then download the scans from ADNI
+   python -m src.preprocessing.preprocess --scans <scan list csv>
+   python -m src.preprocessing.qc_sheets                # every scan checked by eye
+   python -m src.preprocessing.record_review --sheets <n ...>
+   python -m src.preprocessing.check_tilt --workers 6
+   python -m src.preprocessing.make_training_scans
+   python -m src.preprocessing.verify_processed --workers 6
+   ```
+3. **Brain-age model** (step 6; decisions 22-31; CNN training on a GPU: `docs/gpu_training_guide.md`)
+   ```
+   python -m src.brain_age.extract_features --workers 4
+   python -m src.brain_age.train_baseline                      # ridge / SVR baseline
+   python -m src.brain_age.cache build --cache-dir <folder>    # 2 mm arrays for the GPU machine
+   python -m src.brain_age.train_cnn --run cnn-1               # and --fold 0..4 (run cnn-cv)
+   python -m src.brain_age.bias_plot
+   python -m src.brain_age.bias_correction --cv-run cnn-cv
+   python -m src.brain_age.predict --set cn_val                # must reproduce validation
+   python -m src.brain_age.predict --set cn_test --confirm-test   # done once (decision 31)
+   python -m src.brain_age.report_metrics                      # MAE, RMSE, Pearson, Spearman
+   ```
+4. **BAG** (step 7; decision 32)
+   ```
+   python -m src.brain_age.predict --set mci
+   python -m src.brain_age.bag_table
+   python -m src.brain_age.bag_stats          # MCI train + validation only, until E1-E5 are frozen
+   ```
+5. **E1 and E2** (steps 8-9; decisions 33-36)
+   ```
+   python -m src.features.mci_features
+   python -m src.progression.train --config configs/e1.yaml
+   python -m src.progression.train --config configs/e2.yaml
+   python -m src.progression.evaluate --set val                   # checks hashes, dry run
+   python -m src.progression.evaluate --set test --confirm-test   # done once (decision 36)
+   ```
+6. **Tests**: `python -m pytest` (about 20 s). Tests that need ADNI data skip themselves when the
+   data is not on the machine.
+
+Results of every run: [docs/experiment_log.md](docs/experiment_log.md).
+
 ## Repository layout
 
 ```
@@ -62,7 +115,7 @@ src/
   brain_age/      Brain-age baseline, 3D CNN, bias correction, BAG
   progression/    E1-E5 training and evaluation
   utils/          Shared helpers (config, seeding, metrics)
-tests/
+tests/          pytest checks (configs, metrics, subject-level data rules)
 ```
 
 ## Team workflow

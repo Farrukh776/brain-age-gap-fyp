@@ -1,27 +1,33 @@
+# Exact versions used for all FYP-I results (Python 3.11.18, conda env `fyp`, checked 2026-11-28).
+# Install: pip install -r requirements.txt
+
 # Core
-numpy
-pandas
-scipy
-scikit-learn
-pyyaml
-tqdm
+numpy==2.4.6
+pandas==3.1.1
+scipy==1.17.1
+scikit-learn==1.9.1
+joblib==1.6.0
+PyYAML==6.0.3
+tqdm==4.70.1
 
 # MRI
-nibabel
-nilearn
-SimpleITK
+nibabel==5.5.0
+nilearn==0.14.1
+SimpleITK==2.5.7
 
-# Deep learning (for GPU, install torch from https://pytorch.org first)
-torch
+# Deep learning. The laptop uses the CPU build (torch 2.15.0+cpu). For a GPU, install torch first
+# with the command from https://pytorch.org for that machine's CUDA version (Colab ships its own),
+# then install this file; pip keeps the GPU build because the version matches.
+torch==2.15.0
 
 # Explainability (FYP-II, listed for completeness)
-shap
-captum
+shap==0.51.0
+captum==0.9.0
 
 # Plots and notebooks
-matplotlib
-plotly
-jupyter
+matplotlib==3.11.2
+plotly==7.1.0
+jupyter==1.1.1
 
 # Tests
-pytest
+pytest==9.2.0
