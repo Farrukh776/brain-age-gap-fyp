@@ -46,6 +46,8 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
   Validation dry run: E2 - E1 AUC +0.001, p 0.83 (code check only).
 - Decision 36: E1 + E2 frozen (model hashes) and the E2 vs E1 test and its interpretation fixed
   before the MCI test set is used.
+- Drive clean-up of decision 29 done by Farrukh (reported 2026-11-28): ADNI-derived files are no
+  longer in the personal account; data is only in the university Drive folder (and locally on D:).
 - Decision 35 trimmed: the grey-matter sensitivity-analysis plan was removed until the supervisor
   confirms (now an open question).
 - **MCI test set used once (69: 45 stable, 24 progressors).** Logistic regression ROC-AUC E1 0.576
@@ -61,15 +63,15 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 2. Step 10: FYP-I report and slides (literature review, cohort flow diagram, preprocessing, brain
    age, BAG, E1/E2 with the honest test result and limitations), FYP-II plan (E3-E5, XAI,
    calibration).
-3. Drive clean-up and backup of `D:/fyp-data/outputs/brain_age` and `outputs/progression`
-   (session 9 items 2 and 3, still open).
+3. Confirm the frozen model files (`D:/fyp-data/outputs/brain_age` and `outputs/progression`) are
+   backed up in the university Drive folder; the hash checks need these exact files.
 
 **Open questions**
 - Report limitation: intensity features after affine registration, not grey-matter maps.
 - Pending supervisor (Farrukh to ask): should grey-matter maps (e.g. CAT12) be added later as a
   sensitivity analysis for E1-E5? Not recorded as a plan until confirmed.
 - Session 9 open questions still apply (validation BAG offset, BAG carries age information for
-  E3, supervisor review of `cohort_definition.md`, decision 29 clean-up).
+  E3, supervisor review of `cohort_definition.md`). Decision 29 clean-up is done.
 
 ---
 
