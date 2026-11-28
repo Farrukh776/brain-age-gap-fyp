@@ -14,7 +14,8 @@ Tick items as they are completed. Steps are done in order.
 ## Step 3: Environment
 - [ ] Conda environment `fyp` works on all machines (Farrukh: done 2026-11-13; Anfas, Asher: pending)
 - [x] Storage location for scans decided (see decision 6)
-- [ ] GPU access confirmed (university lab GPU available; model, storage and booking rules to confirm)
+- [x] GPU access confirmed
+      (2026-11-28: resolved through Google Colab, decisions 28 and 29; lab GPU not needed)
 
 ## Step 4: Cohort and splits
 - [x] Clinical tables downloaded (diagnosis, demographics, MMSE, registry, data dictionary;
