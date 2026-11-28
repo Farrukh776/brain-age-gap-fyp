@@ -90,5 +90,8 @@ Tick items as they are completed. Steps are done in order.
 
 ## Step 10: FYP-I deliverables
 - [ ] Report: literature review, cohort flow diagram, preprocessing, brain age, BAG, E1/E2
+      (2026-11-28: full draft on the FYP-I Final Report template, 40 pages, local
+      `outputs/report/FYP-I_Report.docx`; built by `src/report/build_report.js`; needs supervisor
+      approval, submission date, and the team's check of roles and timeline)
 - [ ] FYP-II plan (E3-E5, XAI, calibration)
 - [ ] Presentation slides

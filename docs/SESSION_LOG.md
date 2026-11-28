@@ -47,6 +47,14 @@ department template, which Farrukh will share. GPU roadmap item closed (Colab).
   Validation dry run: E2 - E1 AUC +0.001, p 0.83 (code check only).
 - Decision 36: E1 + E2 frozen (model hashes) and the E2 vs E1 test and its interpretation fixed
   before the MCI test set is used.
+- FYP-I report drafted on the department template (only SRS, SDS and FYP-I report templates exist on
+  GCR, so the FYP-I report serves as the research report): 40 pages, 26 references all checked
+  online (Le et al. 2018 is Frontiers in Aging Neuroscience, not Psychiatry), official ADNI
+  by-line, Methods and acknowledgement text (rev. Apr 2024). `src/report/diagrams.py` adds the
+  pipeline, architecture, data-design, freeze-workflow and Gantt diagrams, drawn at print size.
+  Word updates the contents and lists; the .docx and PDF stay local (subject-level scatter plots).
+  Still to fill: submission date, supervisor approval; team to check roles (Farrukh brain age,
+  Anfas progression, Asher trust/integration) and the Sep-Oct timeline bars.
 - Step 10 started: `src/report/figures.py` makes the report figures from saved results (cohort
   flow, brain-age scatter + bias, BAG by group, E1/E2 ROC). Figures with individual points stay in
   local `outputs/figures`; the flow diagram and ROC curves are also in `docs/figures`.

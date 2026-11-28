@@ -54,16 +54,16 @@ def save(fig, name: str, public: bool) -> None:
 # ---------------------------------------------------------------- cohort flow
 
 def box(ax, x, y, w, h, text, bold=False, fill="#f4f3f0", size=8.2):
-    ax.add_patch(FancyBboxPatch((x - w / 2, y - h / 2), w, h, boxstyle="round,pad=0.02,rounding_size=0.08",
+    ax.add_patch(FancyBboxPatch((x - w / 2, y - h / 2), w, h, boxstyle="round,pad=0.0,rounding_size=0.06",
                                 fc=fill, ec=MUTED, lw=0.8))
     ax.text(x, y, text, ha="center", va="center", color=INK, fontsize=size,
             fontweight="bold" if bold else "normal", linespacing=1.35)
 
 
 def side(ax, x, y, w, h, text):
-    ax.add_patch(FancyBboxPatch((x - w / 2, y - h / 2), w, h, boxstyle="round,pad=0.02,rounding_size=0.08",
+    ax.add_patch(FancyBboxPatch((x - w / 2, y - h / 2), w, h, boxstyle="round,pad=0.0,rounding_size=0.06",
                                 fc=SURFACE, ec=GRID, lw=0.8))
-    ax.text(x, y, text, ha="center", va="center", color=INK2, fontsize=7.4, linespacing=1.3)
+    ax.text(x, y, text, ha="center", va="center", color=INK2, fontsize=7.5, linespacing=1.3)
 
 
 def arrow(ax, x0, y0, x1, y1):
@@ -72,49 +72,50 @@ def arrow(ax, x0, y0, x1, y1):
 
 
 def cohort_flow() -> None:
-    fig, ax = plt.subplots(figsize=(10.5, 6.2))
-    ax.set_xlim(0, 15)
-    ax.set_ylim(1.0, 10)
+    # drawn at print size: 1 axis unit = 1 inch, 7.2 in wide (inserted at about 6.3 in)
+    fig = plt.figure(figsize=(7.2, 6.0))
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.set_xlim(0, 7.2)
+    ax.set_ylim(0, 6.0)
     ax.axis("off")
     ax.grid(False)
-    w, h = 3.5, 0.8                      # main boxes
-    ew = 3.3                             # exclusion boxes
-    cols = {"CN": (5.55, 1.85), "MCI": (9.45, 13.15)}   # column x, exclusion box x
     nl = chr(10)
+    w = 2.5
+    cols = {"CN": 1.6, "MCI": 5.0}
+    rows = [(5.4, 0.62), (3.95, 0.5), (2.6, 0.5)]          # (y, height) of the main boxes
     steps = {
-        "CN": [(9.2, f"Cognitively unimpaired{nl}(CN) at baseline: 1,593"),
-               (7.0, "947 subjects"), (5.1, "935 subjects")],
-        "MCI": [(9.2, f"Mild cognitive impairment{nl}(MCI) at baseline: 1,550"),
-                (7.0, "454 subjects"), (5.1, "453 subjects")],
+        "CN": [f"Cognitively unimpaired (CN){nl}at baseline: 1,593", "947 subjects", "935 subjects"],
+        "MCI": [f"Mild cognitive impairment (MCI){nl}at baseline: 1,550", "454 subjects", "453 subjects"],
     }
     excl = {
-        "CN": [nl.join(["Later diagnosed MCI or AD: 215", "No 3 T scan within 90 days: 431"]),
-               nl.join(["Failed scan QC: 8", "Same person enrolled twice: 4"])],
+        "CN": [nl.join(["Later MCI or AD: 215", "No 3 T scan in 90 days: 431"]),
+               nl.join(["Failed scan QC: 8", "Enrolled twice: 4"])],
         "MCI": [nl.join(["Enrolled in ADNI4: 234", "Reverted to CN: 114",
-                         "Follow-up < 36 months: 486", "No 3 T scan within 90 days: 262"]),
+                         "Follow-up < 36 months: 486", "No 3 T scan in 90 days: 262"]),
                 "Failed scan QC: 1"],
     }
-    for c, (x, ex) in cols.items():
-        ys = [y for y, _ in steps[c]]
-        for i, (y, text) in enumerate(steps[c]):
-            box(ax, x, y, w, h, text, bold=(i == 0))
+    ew = 1.75
+    for c, x in cols.items():
+        for i, ((y, h), text) in enumerate(zip(rows, steps[c])):
+            box(ax, x, y, w, h, text, bold=(i == 0), size=8)
             if i:
-                arrow(ax, x, ys[i - 1] - h / 2, x, y + h / 2)
-                ey = (ys[i - 1] + y) / 2
+                py, ph = rows[i - 1]
+                arrow(ax, x, py - ph / 2, x, y + h / 2)
+                ey = ((py - ph / 2) + (y + h / 2)) / 2
                 lines = excl[c][i - 1].count(nl) + 1
-                side(ax, ex, ey, ew, 0.2 + 0.24 * lines, excl[c][i - 1])
-                edge = ex + ew / 2 if c == "CN" else ex - ew / 2
-                ax.plot([edge, x], [ey, ey], color=MUTED, lw=0.8)
-    box(ax, 5.55, 3.0, w, 1.2, nl.join(["Brain-age cohort (CN)", "Train 654 subjects (1,755 scans)",
-                                            "Validation 140  ·  Test 141"]), fill="#eaf1fb", size=7.4)
-    box(ax, 9.45, 3.0, w, 1.2, nl.join(["Progression cohort (MCI)", "Train 316  ·  Validation 68  ·  Test 69",
-                                            "299 stable  ·  154 progressors (34%)"]), fill="#fdeee7", size=7.4)
-    arrow(ax, 5.55, 5.1 - h / 2, 5.55, 3.0 + 0.6)
-    arrow(ax, 9.45, 5.1 - h / 2, 9.45, 3.0 + 0.6)
-    ax.text(7.5, 1.6, nl.join([
+                ex = x + 0.2 + ew / 2
+                side(ax, ex, ey, ew, 0.12 + 0.155 * lines, excl[c][i - 1])
+                ax.plot([x, ex - ew / 2], [ey, ey], color=MUTED, lw=0.8)
+    box(ax, 1.6, 1.25, 2.95, 0.85, nl.join(["Brain-age cohort (CN)", "Train 654 subjects (1,755 scans)",
+                                           "Validation 140  ·  Test 141"]), fill="#eaf1fb", size=7.8)
+    box(ax, 5.0, 1.25, 2.95, 0.85, nl.join(["Progression cohort (MCI)", "Train 316  ·  Validation 68  ·  Test 69",
+                                           "299 stable  ·  154 progressors (34%)"]), fill="#fdeee7", size=7.8)
+    for x in cols.values():
+        arrow(ax, x, rows[2][0] - rows[2][1] / 2, x, 1.25 + 0.425)
+    ax.text(3.6, 0.32, nl.join([
         "Subject-level 70 / 15 / 15 splits (seed 42); no person in more than one split or cohort.",
         "3 T scans only; ADNI1, GO, 2 and 3 (CN also ADNI4). Progressor = dementia within 36 months."]),
-        ha="center", va="center", color=INK2, fontsize=7.6, linespacing=1.4)
+        ha="center", va="center", color=INK2, fontsize=7.3, linespacing=1.4)
     save(fig, "cohort_flow.png", public=True)
 
 
@@ -125,7 +126,7 @@ def brain_age_test() -> None:
     age, pred = t["age"].to_numpy(), t["brain_age"].to_numpy()
     mae = np.abs(pred - age).mean()
     r = np.corrcoef(age, pred)[0, 1]
-    fig, (a, b) = plt.subplots(1, 2, figsize=(8.4, 3.7))
+    fig, (a, b) = plt.subplots(1, 2, figsize=(7.2, 3.3))
 
     lo, hi = np.floor(min(age.min(), pred.min()) - 2), np.ceil(max(age.max(), pred.max()) + 2)
     a.plot([lo, hi], [lo, hi], color=MUTED, lw=1, ls=(0, (4, 3)), zorder=1)
@@ -196,7 +197,7 @@ def roc_curves() -> None:
              val2["prob_logistic_regression"]),
             ("b  Test, used once (n = 69)", test["label"], test["E1_logistic_regression"],
              test["E2_logistic_regression"])]
-    fig, axes = plt.subplots(1, 2, figsize=(8.0, 3.9))
+    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.6))
     for ax, (title, y, p1, p2) in zip(axes, sets):
         ax.plot([0, 1], [0, 1], color=MUTED, lw=1, ls=(0, (4, 3)))
         for p, name, color, ls in ((p1, "E1  MRI", BLUE, "-"), (p2, "E2  MRI + age", ORANGE, (0, (5, 2)))):
