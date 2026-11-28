@@ -5,6 +5,37 @@ Step numbers refer to `ROADMAP.md`. Never put subject IDs or data values here.
 
 ---
 
+## 2026-11-28 (Session 10)
+
+**Current step:** 8 (E1). First item done (MCI feature table). Next is the E1 training script.
+
+**Done**
+- Compared feature options with published MCI-conversion studies (Cuingnet 2011, Moradi 2015,
+  Samper-Gonzalez 2018, Wen 2020): voxel features + linear model is a standard baseline; voxel and
+  regional features perform about the same. Realistic MRI-only AUC about 0.65-0.77.
+- Decision 33 (committed before any MCI model is trained): E1-E5 use the 4 mm voxel features of
+  decision 22; pipeline scaling -> PCA -> L2 logistic regression or random forest, fitted inside
+  each CV fold; tuned by stratified 5-fold CV ROC-AUC on MCI train; Youden cut-off from
+  out-of-fold training predictions; E2 adds standardised age after PCA; logistic regression is
+  the primary model for E2 vs E1.
+- New `src/features/mci_features.py`: 453 subjects x 29,520 features, local
+  `data/features/mci_voxels_4mm.npy` + index. Checks passed: one row per subject, splits match,
+  same scans as the BAG table, rows identical to the full voxel matrix, no subject in two splits.
+- `configs/e1.yaml` and `e2.yaml` point to the new file (still identical apart from age).
+
+**Next (session 11)**
+1. Step 8: write `src/progression/train.py` (reads e1.yaml / e2.yaml; same code for both), add
+   the tuning grid to the configs, run E1 CV on MCI train, check on validation, log in
+   `experiment_log.md`. Do not touch MCI test.
+2. Drive clean-up and backup of `D:/fyp-data/outputs/brain_age` (session 9 items 2 and 3, still open).
+
+**Open questions**
+- Report limitation: intensity features after affine registration, not grey-matter maps.
+- Session 9 open questions still apply (validation BAG offset, BAG carries age information for
+  E3, supervisor review of `cohort_definition.md`, decision 29 clean-up).
+
+---
+
 ## 2026-11-27 (Session 9)
 
 Steps 6 and 7 finished this session.

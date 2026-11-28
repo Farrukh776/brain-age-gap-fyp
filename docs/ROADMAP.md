@@ -69,7 +69,9 @@ Tick items as they are completed. Steps are done in order.
       [1.65, 3.17], Hedges' g 0.68, Welch p 1e-9; decision 32. Repeat on all 453 after E1-E5)
 
 ## Step 8: E1 (MRI only)
-- [ ] MRI feature table for MCI cohort
+- [x] MRI feature table for MCI cohort
+      (2026-11-28: 4 mm voxels of decision 22, 453 subjects x 29,520; decision 33;
+      `src/features/mci_features.py`, local `data/features/mci_voxels_4mm.npy`)
 - [ ] Logistic regression + one tree model, 5-fold CV on train
 - [ ] Validation metrics logged in `docs/experiment_log.md`
 

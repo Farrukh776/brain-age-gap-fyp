@@ -4,7 +4,8 @@ seed: 42
 paths:
   cohort_table: data/tables/mci_cohort.csv
   splits: data/tables/mci_splits.csv
-  features: data/tables/mci_features.csv
+  features: data/features/mci_voxels_4mm.npy        # src/features/mci_features.py (decision 33)
+  features_index: data/features/mci_voxels_4mm_index.csv
   out_dir: outputs/progression/E1
 inputs:
   mri_features: true
