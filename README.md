@@ -1,6 +1,6 @@
 # Brain Age Gap and Trustworthy Multimodal AI for Predicting Alzheimer's Disease Progression
 
-Final Year Project, BS (AI), FAST School of Computing, FAST-NUCES Karachi. Session Fall 2026.
+Final Year Project, BS Computer Science, FAST School of Computing, FAST-NUCES Karachi. Session Fall 2026.
 
 **Supervisor:** Dr. Nasir Uddin
 
@@ -8,7 +8,7 @@ Final Year Project, BS (AI), FAST School of Computing, FAST-NUCES Karachi. Sessi
 |---|---|---|
 | Syed Anfas | 23K-0574 | All (shared) |
 | Asher Ahmed | 23K-0511 | All (shared) |
-| Farrukh | 23K-0776 | All (shared) |
+| Farrukh Imran | 23K-0776 | All (shared) |
 
 Streams (from the proposal): Brain Age AI, Progression AI, Trustworthy AI & Integration.
 The team works on all three streams together rather than assigning one per member.
